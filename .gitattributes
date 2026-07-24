@@ -1,0 +1,2 @@
+# GitHub Linguist does not yet support PARI/GP.
+verification/*.gp linguist-language=Text
