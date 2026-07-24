@@ -3,7 +3,11 @@ Proof and verification package for lower bound on the Gyarmati-Hennecart-Ruzsa s
 # A masked-digit lower bound for the Gyarmati–Hennecart–Ruzsa sum–difference constant
 
 This repository contains the proof, certificate data, and independent
-verification programs for the bound
+verification programs for a new lower bound on the
+[Gyarmati–Hennecart–Ruzsa sum–difference constant](https://teorth.github.io/optimizationproblems/constants/3a.html),
+denoted $C\_{3a}$ in the
+[Optimization Constants in Mathematics](https://github.com/teorth/optimizationproblems)
+repository:
 
 $$
 C\_{3a} > 1.19023813.
