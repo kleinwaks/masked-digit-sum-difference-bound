@@ -5,17 +5,17 @@ Proof and verification package for lower bound on the Gyarmati-Hennecart-Ruzsa s
 This repository contains the proof, certificate data, and independent
 verification programs for the bound
 
-\[
-C_{3a} > 1.19023813.
-\]
+$$
+C\_{3a} > 1.19023813.
+$$
 
 The construction uses the digit mask
 
-\[
+$$
 M=\langle 312,315,336,416,420\rangle\cap[0,3084]
-\]
+$$
 
-in base \(6169\).
+in base $6169\$.
 
 As described in the proof paper, it belongs to a structured sequence of numerical-semigroup constructions rather than being an unstructured search output. Further exploration of the structure that might improve the bound has not been completed.
 
