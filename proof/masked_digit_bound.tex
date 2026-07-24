@@ -1,0 +1,525 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newcommand{\N}{\mathbb{N}_0}
+\newcommand{\card}[1]{\lvert #1\rvert}
+\newcommand{\angles}[1]{\langle #1\rangle}
+\newcommand{\packageurl}{\texttt{PACKAGE\_URL\_TO\_BE\_ADDED}}
+
+\title{A masked-digit lower bound for the Gyarmati--Hennecart--Ruzsa\\sum--difference constant}
+\author{Logan Kleinwaks}
+\date{July 24, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The Gyarmati--Hennecart--Ruzsa sum--difference constant quantifies how large
+a difference set $X-Y$ can be relative to the sumset $X+Y$ for arbitrarily
+large finite sets $X,Y$ of integers satisfying
+$\lvert X+Y\rvert\le K\lvert X\rvert$. Zheng's 2025 lower-bound
+construction encodes bounded integer vectors as base-$(2B+1)$ integers,
+allows every digit in $\{0,1,\ldots,B\}$, and imposes a global cap on the
+sum of the digits. We generalize this construction by allowing the
+digits to lie in an arbitrary finite mask
+$M\subseteq\{0,1,\ldots,B\}$. A standard finite-alphabet multinomial estimate, combined with a
+carry-free digit argument, reduces the resulting asymptotic lower bound to
+two finite partition polynomials determined by $M+M$ and, for each
+$d\in M-M$, by the least
+possible value of $a+b$ among allowed digits $a,b\in M$ with $a-b=d$.
+Applying the bound to
+\[
+ M=\angles{312,315,336,416,420}\cap[0,3084]
+\]
+gives the rigorously certified inequality
+\[
+ C_{3a}>1.19023813.
+\]
+The mask has $901$ elements, $\card{M+M}=3882$, and
+$\card{M-M}=6003$. It belongs to a structured sequence of
+numerical-semigroup constructions rather than being an unstructured search
+output.
+\end{abstract}
+
+\section{Introduction and the finite-set principle}
+Let $C_{3a}$ denote the largest exponent $\theta$ for which, for every
+$K>1$, there are arbitrarily large finite sets $X,Y\subset\mathbb Z$ such
+that
+\[
+ \card{X+Y}\le K\card X,
+ \qquad
+ \card{X-Y}\ge c(K)\card{X+Y}^{\theta}
+\]
+for some $c(K)>0$. Gyarmati, Hennecart and Ruzsa proved the following
+finite-set lower-bound principle \cite{GHR2007}: if $U\subset\N$ is finite
+and contains zero, then
+\begin{equation}\label{eq:GHR}
+ C_{3a}\ge
+ 1+\frac{\log\bigl(\card{U-U}/\card{U+U}\bigr)}
+          {\log(2\max U+1)}.
+\end{equation}
+
+Recent computational work on this constant includes AlphaEvolve
+\cite{GeorgievEtAl2025}, Gerbicz's large finite construction
+\cite{Gerbicz2025}, and Zheng's large-deviation construction
+\cite{Zheng2025}. The \emph{Optimization Constants in Mathematics} repository
+\cite{OptimizationConstants2026} subsequently listed the finite-certificate
+bounds $1.1740744$ and $1.1835129324$ \cite{Griego2026,Mosaic2026}.
+During preparation of this note, a further open submission to that repository
+proposed $1.187326127925948$ \cite{Numaro2026}. The bound proved here
+exceeds all of these values.
+
+Gerbicz introduced bounded base digits into the original construction, and
+Zheng analyzed the limiting exponential growth of a bounded-digit family.
+In Zheng's version the allowed digit alphabet is the complete interval
+$\{0,\ldots,B\}$. We replace that interval by a mask $M$. This can remove
+many possible sum digits while preserving difference digits $d$ that admit
+witnesses $a,b\in M$ with $a-b=d$ and small $a+b$, so that they use little
+of the two digit-sum budgets in the construction. The multinomial counting
+estimate used below is standard; Proposition~\ref{prop:masked} is the
+construction-specific arbitrary-mask consequence.
+
+\section{The masked-digit bound}
+Let $M\subset\N$ be finite with $0\in M$ and
+$B=\max M\ge1$. Let
+\[
+ Q=2B+1,
+ \qquad S=M+M,
+ \qquad D=M-M.
+\]
+For each $d\in D$, define its minimum witness cost
+\begin{equation}\label{eq:kappa}
+ \kappa(d)=\min\{a+b:a,b\in M,\ a-b=d\}.
+\end{equation}
+The function $\kappa$ is even: $\kappa(-d)=\kappa(d)$. Define
+\begin{equation}\label{eq:partition-polys}
+ P_+(x)=\sum_{s\in S}x^s,
+ \qquad
+ P_-(x)=\sum_{d\in D}x^{\kappa(d)}.
+\end{equation}
+
+We use the following standard lower bound for a multinomial coefficient;
+see, for example, Csisz\'ar~\cite[Lemmas~II.1 and~II.2]{Csiszar1998}.
+If $E$ is a nonempty finite set and nonnegative integers $r_e$ satisfy
+$\sum_{e\in E}r_e=m$, let $q_e=r_e/m$. Then
+\begin{equation}\label{eq:multinomial-estimate}
+ \log\frac{m!}{\prod_{e\in E}r_e!}
+ \ge -m\sum_{e\in E}q_e\log q_e
+      -\log\binom{m+\card E-1}{\card E-1},
+\end{equation}
+where $\log$ is the natural logarithm and $0\log0$ is interpreted as zero.
+For fixed $E$, the binomial coefficient in \eqref{eq:multinomial-estimate}
+is a polynomial in $m$ of degree $\card E-1$; equivalently,
+\[
+ \log\binom{m+\card E-1}{\card E-1}=O_E(\log m)=o(m).
+\]
+
+\begin{proposition}[Masked-digit bound]\label{prop:masked}
+For every $x\in(0,1)$,
+\begin{equation}\label{eq:masked-bound}
+ C_{3a}\ge
+ 1+\frac{\log P_-(x)-\log P_+(x)}{\log(2B+1)}.
+\end{equation}
+Consequently, one may take the supremum of the right-hand side over
+$x\in(0,1)$.
+\end{proposition}
+
+\begin{proof}
+Fix $x\in(0,1)$ and define
+\begin{equation}\label{eq:gibbs}
+ p_d=\frac{x^{\kappa(d)}}{P_-(x)}
+ \qquad(d\in D).
+\end{equation}
+Since $\kappa$ is even, these weights satisfy $p_d=p_{-d}$. Let
+\[
+ \mu=\sum_{d\in D}p_d\kappa(d).
+\]
+For each $d\in D$, choose $\alpha_d,\beta_d\in M$ such that
+\[
+ \alpha_d-\beta_d=d,
+ \qquad
+ \alpha_d+\beta_d=\kappa(d),
+\]
+with $(\alpha_{-d},\beta_{-d})=(\beta_d,\alpha_d)$; for $d=0$, take
+$(\alpha_0,\beta_0)=(0,0)$.
+
+Let
+\[
+ R=\log\frac{P_-(x)}{P_+(x)}.
+\]
+If $R\le0$, then \eqref{eq:masked-bound} follows from $C_{3a}\ge1$, which
+is obtained from \eqref{eq:GHR} using $U=\{0,1\}$. Assume henceforth that
+$R>0$, and choose
+\[
+ 0<\varepsilon<\frac{R}{-\log x}.
+\]
+For each positive $d\in D$, define
+\[
+ n_d^{(m)}=n_{-d}^{(m)}=\lfloor mp_d\rfloor,
+ \qquad
+ n_0^{(m)}=m-2\sum_{\substack{d\in D\\d>0}}\lfloor mp_d\rfloor.
+\]
+These are nonnegative integers, their sum is $m$, and
+$n_d^{(m)}/m\to p_d$ for every $d\in D$.  Write
+$q_d^{(m)}=n_d^{(m)}/m$.  The number of sequences containing exactly
+$n_d^{(m)}$ copies of each $d$ is the multinomial coefficient
+\[
+ \frac{m!}{\prod_{d\in D}n_d^{(m)}!}.
+\]
+By \eqref{eq:multinomial-estimate}, its logarithm is at least
+\[
+ -m\sum_{d\in D}q_d^{(m)}\log q_d^{(m)}
+ -\log\binom{m+\card D-1}{\card D-1}
+ =mG(p)+o(m),
+ \qquad
+ G(p)=-\sum_{d\in D}p_d\log p_d.
+\]
+Indeed, $q_d^{(m)}\to p_d$ for every $d$, the function
+$t\mapsto-t\log t$ is continuous on $[0,1]$ when its value at zero is
+taken to be zero, and the final logarithmic term is $o(m)$ because $D$ is
+fixed.  Also, for all sufficiently
+large $m$,
+\[
+ \sum_{d\in D}n_d^{(m)}\kappa(d)\le(\mu+\varepsilon)m.
+\]
+Set
+\[
+ L_m=\left\lfloor\frac{(\mu+\varepsilon)m}{2}\right\rfloor
+\]
+and define
+\begin{equation}\label{eq:Um}
+ U_m=\left\{
+   \sum_{i=0}^{m-1}a_iQ^i:
+   a_i\in M,\ \sum_{i=0}^{m-1}a_i\le L_m
+ \right\}.
+\end{equation}
+
+Take any sequence $(d_0,\ldots,d_{m-1})$ containing exactly
+$n_d^{(m)}$ copies of each $d\in D$. Symmetry of the counts gives
+$\sum_i d_i=0$. Hence
+\[
+ \sum_i\alpha_{d_i}-\sum_i\beta_{d_i}=0,
+ \qquad
+ \sum_i\alpha_{d_i}+\sum_i\beta_{d_i}=\sum_i\kappa(d_i),
+\]
+so each of the first two sums equals one half of the last. Each is an
+integer not exceeding $(\mu+\varepsilon)m/2$, and hence is at most $L_m$.
+Therefore
+\[
+ u=\sum_{i=0}^{m-1}\alpha_{d_i}Q^i,
+ \qquad
+ v=\sum_{i=0}^{m-1}\beta_{d_i}Q^i
+\]
+belong to $U_m$, and
+\[
+ u-v=\sum_{i=0}^{m-1}d_iQ^i.
+\]
+The map from difference-digit sequences to integers is injective. Indeed, if
+\[
+ \sum_i d_iQ^i=\sum_i d'_iQ^i,
+\]
+then, with $\delta_i=d_i-d'_i$, we have
+$\sum_i\delta_iQ^i=0$ and $|\delta_i|\le2B<Q$. Reduction modulo
+$Q=2B+1$ therefore gives $\delta_0=0$; after division by $Q$, induction
+gives $\delta_i=0$ for every $i$. The multinomial estimate above therefore yields
+\begin{equation}\label{eq:diff-lower}
+ \liminf_{m\to\infty}\frac1m\log\card{U_m-U_m}\ge G(p).
+\end{equation}
+From \eqref{eq:gibbs},
+\begin{equation}\label{eq:Gp}
+ G(p)=\log P_-(x)-\mu\log x.
+\end{equation}
+
+Every element of $U_m+U_m$ has a carry-free base-$Q$ digit sequence
+$(s_0,\ldots,s_{m-1})\in S^m$ with $\sum_i s_i\le2L_m$. If $N_m$ is the
+number of all such sequences, then, because $0<x<1$,
+\[
+ N_mx^{2L_m}
+ \le\sum_{(s_i)\in S^m}x^{\sum_i s_i}
+ =P_+(x)^m.
+\]
+Thus
+\begin{equation}\label{eq:sum-upper}
+ \limsup_{m\to\infty}\frac1m\log\card{U_m+U_m}
+ \le \log P_+(x)-(\mu+\varepsilon)\log x.
+\end{equation}
+Combining \eqref{eq:diff-lower}, \eqref{eq:Gp}, and
+\eqref{eq:sum-upper} gives
+\begin{equation}\label{eq:ratio-rate}
+ \liminf_{m\to\infty}\frac1m
+ \log\frac{\card{U_m-U_m}}{\card{U_m+U_m}}
+ \ge R+\varepsilon\log x>0.
+\end{equation}
+
+Finally, every $u\in U_m$ has digits at most $B$, so
+\[
+ u\le B\sum_{i=0}^{m-1}Q^i
+   =\frac{Q^m-1}{2}.
+\]
+Consequently,
+\[
+ 2\max U_m+1\le Q^m.
+\]
+The numerator in \eqref{eq:GHR} is positive for all sufficiently large
+$m$ by \eqref{eq:ratio-rate}; hence replacing its denominator by the larger
+quantity $m\log Q$ preserves a lower bound. Applying \eqref{eq:GHR} and
+taking the lower limit of the resulting right-hand side gives
+\[
+ C_{3a}\ge1+\frac{R+\varepsilon\log x}{\log Q}.
+\]
+Letting $\varepsilon\downarrow0$ proves \eqref{eq:masked-bound}.
+\end{proof}
+
+\begin{remark}[Recovery of Zheng's optimization]
+For the complete mask $M=\{0,1,\ldots,B\}$,
+\[
+ P_+(x)=1+x+\cdots+x^{2B},
+ \qquad
+ P_-(x)=1+2x+2x^2+\cdots+2x^B.
+\]
+Maximizing Proposition~\ref{prop:masked} for $B=5$ reproduces Zheng's value
+$1.173077279785\ldots$ \cite{Zheng2025}. Thus the proposition is a direct mask
+generalization of Zheng's limiting construction, although the proof above is
+self-contained apart from the finite-set principle \eqref{eq:GHR}
+and the standard multinomial estimate \eqref{eq:multinomial-estimate}.
+\end{remark}
+
+\section{The certified mask}
+Let
+\begin{equation}\label{eq:record-mask}
+ H=\angles{312,315,336,416,420}
+ =\{312a+315b+336c+416d+420e:a,b,c,d,e\in\N\}
+\end{equation}
+and let
+\[
+ M=H\cap[0,3084].
+\]
+Exact integer calculation gives
+\[
+ B=\max M=3084,
+ \qquad
+ Q=2B+1=6169,
+\]
+and
+\begin{equation}\label{eq:counts}
+ \card M=901,
+ \qquad
+ \card{M+M}=3882,
+ \qquad
+ \card{M-M}=6003.
+\end{equation}
+The conductor of $H$ is $4574$, and the cheapest witness for difference one
+has cost
+\[
+ \kappa(1)=1463.
+\]
+The verification package contains the complete mask, complete sum support,
+and all values $(d,\kappa(d))$ for $d\in M-M$.
+
+At the fixed decimal value
+\[
+ \lambda_0=0.0016039887760343438,
+ \qquad x_0=e^{-\lambda_0},
+\]
+the partition sums are approximately
+\[
+ P_-(x_0)=229.6998248684831596707\ldots,
+ \qquad
+ P_+(x_0)=43.66337113593047602635\ldots,
+\]
+so
+\[
+ \log\frac{P_-(x_0)}{P_+(x_0)}
+ =1.66026378574340855999\ldots
+\]
+and
+\begin{equation}\label{eq:theta-numerical}
+ 1+\frac{\log(P_-(x_0)/P_+(x_0))}{\log 6169}
+ =1.19023813803716219098\ldots.
+\end{equation}
+The accompanying MPFR verifier uses $384$-bit arithmetic with directed
+rounding. It reconstructs all discrete data from the five generators and
+proves the conservative strict inequality
+\begin{equation}\label{eq:certified}
+ \boxed{C_{3a}>1.19023813}.
+\end{equation}
+No optimization claim is needed for the proof: Proposition~\ref{prop:masked}
+holds at the single fixed value $\lambda_0$.
+
+\section{Structure of the successful masks}
+A numerical semigroup is a cofinite additive submonoid of $\N$. The record
+mask emerged from a sequence of numerical-semigroup masks with increasingly
+rich but related structure.
+
+\subsection{First structured mask}
+The first strong mask was
+\[
+ H_1=12\angles{2,3}+13\angles{2,3}
+ =\angles{24,26,36,39},
+ \qquad B=189,
+\]
+which gives
+\[
+ C_{3a}\ge1.1893936243\ldots.
+\]
+
+\subsection{Four-generator improvement}
+The next improvement was
+\[
+ H_2=20\angles{3,4}+21\angles{3,4}
+ =\angles{60,63,80,84},
+ \qquad B=538,
+\]
+which gives
+\[
+ C_{3a}\ge1.1902074763\ldots.
+\]
+For the general family
+$S\angles{k,k+1}+(S+1)\angles{k,k+1}$, the generators satisfy
+\[
+ Sk+(S+1)(k+1)=S(k+1)+(S+1)k+1.
+\]
+Thus two allowed sums differ by one, helping to keep the difference alphabet
+dense while the semigroup gaps suppress the sum alphabet.
+
+\subsection{Five-generator record and iterated gluing}
+For numerical semigroups $\Gamma_1,\Gamma_2$ and coprime positive integers
+$d_1,d_2$ with $d_1\in\Gamma_2$ and $d_2\in\Gamma_1$, the semigroup
+$d_1\Gamma_1+d_2\Gamma_2$ is called a gluing. This operation is standard in
+the theory of complete-intersection numerical semigroups
+\cite{AssiGarciaSanchez2013}.
+
+Let
+\[
+ \Gamma=\angles{3,4},
+ \qquad
+ A=\angles{15,16,20}.
+\]
+First,
+\[
+ A=5\Gamma+16\N.
+\]
+This is a gluing of $\Gamma$ and $\N=\angles{1}$: the coefficient
+$5$ belongs to $\N$, the coefficient $16$ belongs to $\Gamma$
+($16=4\cdot4$), and $\gcd(5,16)=1$. Second,
+\[
+ H=21A+104\Gamma.
+\]
+This is a gluing of $A$ and $\Gamma$: the coefficient $21$ belongs to
+$\Gamma$ ($21=7\cdot3$), the coefficient $104$ belongs to $A$
+($104=4\cdot16+2\cdot20$), and $\gcd(21,104)=1$. Thus the displayed
+decomposition exhibits $H$ as an iterated gluing. Since $\N$ and
+$\angles{3,4}$ are complete intersections and gluing preserves the
+complete-intersection property, $H$ is a complete-intersection numerical
+semigroup \cite{AssiGarciaSanchez2013}.
+
+Four of the five generators form a larger copy of the same unit-defect core:
+\[
+ \angles{312,315,416,420}
+ =104\angles{3,4}+105\angles{3,4},
+\]
+and
+\[
+ 312+420=315+416+1.
+\]
+The additional generator $336=21\cdot16$ selectively changes the gap and
+bridge structure. This nested pattern suggests that the present result may
+belong to a broader family. Searches of several natural nearby families have
+not exhausted all structured gluings, higher embedding dimensions, or
+multilevel digit constraints.
+
+\section{Verification and reproducibility}
+The source code, certificate files, and verification scripts accompany this
+paper. Before public release they will be archived at a permanent location,
+whose URL will replace the following placeholder:
+\[
+ \packageurl.
+\]
+The package contains the following independently written checks.
+\begin{enumerate}
+ \item \texttt{verification/verify\_mpfr.cpp} reconstructs $M$, $M+M$, and
+ $\kappa(d)$ using exact integer arithmetic and certifies
+ \eqref{eq:certified} using MPFR directed rounding.
+ \item \texttt{verification/verify\_python.py} independently reconstructs
+ the exact discrete data using the Python standard library and checks the
+ shipped certificate files and hashes.
+ \item \texttt{verification/verify\_gp.gp} independently reconstructs the
+ data in PARI/GP and evaluates the bound at high precision. This is a
+ secondary numerical cross-check; the MPFR program supplies the rigorous
+ floating-point certificate.
+\end{enumerate}
+
+\section*{Acknowledgements and AI-use disclosure}
+During this work, the author used several large language models (LLMs), as follows: OpenAI's GPT-5.6 Sol model was used extensively in software development, analysis of search results, writing this paper, and preparation of the verification package; Google's Gemini 3.1 Pro Preview was used in software development and analysis of search results; Google's Gemini 3.5 Flash was used to review this paper; Anthropic's Sonnet 5 was used in analysis of search results. The author guided the software development and analysis of search results, noticed emerging structure in promising masks, and prompted the LLMs to reason about generalizations that could yield a stronger result; only GPT-5.6 Sol successfully generalized in a way that achieved a stronger result. The author ran the search and verificaton software, reviewed this paper, and takes responsibility for the final mathematical claims and references.
+
+\begin{thebibliography}{99}
+\bibitem{Csiszar1998}
+I. Csisz\'ar,
+\emph{The method of types},
+IEEE Transactions on Information Theory 44 (1998), no.~6, 2505--2523,
+\url{https://iest2.ie.cuhk.edu.hk/~whyeung/post/manuscript/06_SAEP/method\%20of\%20types.pdf}.
+
+\bibitem{OptimizationConstants2026}
+D. Davis, P. Ivanisvili, T. Tao, and contributors,
+\emph{Optimization Constants in Mathematics},
+GitHub repository, 2026,
+\url{https://github.com/teorth/optimizationproblems}.
+
+\bibitem{GHR2007}
+K. Gyarmati, F. Hennecart, and I. Z. Ruzsa,
+\emph{Sums and differences of finite sets},
+Functiones et Approximatio Commentarii Mathematici 37 (2007), 175--186,
+\url{https://gyarmatikati.web.elte.hu/publ/sumdiffv.pdf}.
+
+\bibitem{GeorgievEtAl2025}
+B. Georgiev, J. G\'omez-Serrano, T. Tao, and A. Z. Wagner,
+\emph{Mathematical exploration and discovery at scale},
+arXiv:2511.02864, 2025,
+\url{https://arxiv.org/abs/2511.02864}.
+
+\bibitem{Gerbicz2025}
+R. Gerbicz,
+\emph{Sums and differences of sets (improvement over AlphaEvolve)},
+arXiv:2505.16105, 2025,
+\url{https://arxiv.org/abs/2505.16105}.
+
+\bibitem{Zheng2025}
+F. Zheng,
+\emph{Sums and differences of sets: a further improvement over AlphaEvolve},
+arXiv:2506.01896, 2025,
+\url{https://arxiv.org/abs/2506.01896}.
+
+\bibitem{Griego2026}
+S. Griego,
+\emph{Base-$21$ digit construction certificate for $C_{3a}$},
+GitHub pull request \#71 to the Optimization Constants repository, 2026,
+\url{https://github.com/teorth/optimizationproblems/pull/71}.
+
+\bibitem{Mosaic2026}
+Mosaic Intelligence,
+\emph{Exact-count certificate for problem 3a},
+GitHub pull request \#95 to the Optimization Constants repository, 2026,
+\url{https://github.com/teorth/optimizationproblems/pull/95}.
+
+\bibitem{Numaro2026}
+Numaro,
+\emph{Certified lower bound $C_{3a}\ge1.187326127925948$},
+GitHub pull request \#131 to the Optimization Constants repository, 2026,
+\url{https://github.com/teorth/optimizationproblems/pull/131}.
+
+\bibitem{AssiGarciaSanchez2013}
+A. Assi and P. A. Garc\'ia-S\'anchez,
+\emph{Constructing the set of complete intersection numerical semigroups
+with a given Frobenius number},
+arXiv:1204.4258, 2013,
+\url{https://arxiv.org/abs/1204.4258}.
+\end{thebibliography}
+
+\end{document}
