@@ -17,10 +17,10 @@ $$
 M=\langle1518,1524,1587,2024,2032,2116\rangle\cap[0,17032]
 $$
 
-in base \(34065\). Its six generators form the product grid
+in base 34065. Its six generators form the product grid
 
 $$
-\{3,4\}\times\{506,508,529\}.
+\\{3,4\\}\times\\{506,508,529\\}.
 $$
 
 The three-column semigroup has the simple-gluing description
