@@ -3,17 +3,18 @@
 {
   default(realprecision, 120);
 
-  B = 3084;
+  B = 17032;
   Q = 2*B + 1;
-  G = [312,315,336,416,420];
+  G = [1518,1524,1587,2024,2032,2116];
   INF = 10^20;
+  LIMIT = 40000;
 
-  reach = vector(10001);
+  reach = vector(LIMIT + 1);
   reach[1] = 1; \\ index n+1 represents n
-  for(n = 0, 10000,
+  for(n = 0, LIMIT,
     if(reach[n+1],
       for(i = 1, #G,
-        if(n + G[i] <= 10000, reach[n + G[i] + 1] = 1)
+        if(n + G[i] <= LIMIT, reach[n + G[i] + 1] = 1)
       )
     )
   );
@@ -38,18 +39,25 @@
   diff_size = sum(i = 1, #diff_cost, diff_cost[i] < INF);
 
   cond = -1;
-  for(n = 0, 10000-312,
-    if(cond < 0 && sum(j = 0, 311, reach[n+j+1]) == 312, cond = n)
+  multiplicity = G[1];
+  for(n = 0, LIMIT-multiplicity,
+    if(cond < 0 &&
+       sum(j = 0, multiplicity-1, reach[n+j+1]) == multiplicity,
+       cond = n)
   );
 
-  if(#M != 901, error("wrong mask size"));
-  if(M[1] != 0 || M[#M] != B, error("wrong mask endpoints"));
-  if(sum_size != 3882, error("wrong sum support size"));
-  if(diff_size != 6003, error("wrong difference support size"));
-  if(diff_cost[B+2] != 1463, error("wrong kappa(1)"));
-  if(cond != 4574, error("wrong conductor"));
+  cover = 0;
+  while(cover < B && diff_cost[B+cover+2] < INF, cover = cover + 1);
 
-  lambda = 0.0016039887760343438;
+  if(#M != 3121, error("wrong mask size"));
+  if(M[1] != 0 || M[#M] != B, error("wrong mask endpoints"));
+  if(sum_size != 18730, error("wrong sum support size"));
+  if(diff_size != 32369, error("wrong difference support size"));
+  if(cover != 13066, error("wrong initial difference cover"));
+  if(diff_cost[B+2] != 14351, error("wrong kappa(1)"));
+  if(cond != 28922, error("wrong conductor"));
+
+  lambda = 0.000321149844434550835903084464712287774157626054669874186964;
   Pplus = sum(s = 0, 2*B, if(sum_present[s+1], exp(-lambda*s), 0));
   Pminus = sum(i = 1, #diff_cost,
                if(diff_cost[i] < INF, exp(-lambda*diff_cost[i]), 0));
@@ -58,14 +66,14 @@
 
   print("Exact combinatorial reconstruction: PASS");
   print("B=", B, " base=", Q, " |M|=", #M, " |M+M|=", sum_size,
-        " |M-M|=", diff_size, " conductor=", cond,
+        " |M-M|=", diff_size, " cover=", cover, " conductor=", cond,
         " kappa(1)=", diff_cost[B+2]);
   print("Pminus = ", Pminus);
   print("Pplus  = ", Pplus);
   print("F      = ", F);
   print("theta  = ", th);
-  if(th <= 1.19023813,
+  if(th <= 1.19102809,
     error("numerical value did not exceed conservative bound")
   );
-  print("PASS: high-precision PARI/GP value exceeds 1.19023813");
+  print("PASS: high-precision PARI/GP value exceeds 1.19102809");
 }

@@ -1,18 +1,20 @@
 {
-  "B": 3084,
-  "base": 6169,
-  "certified_theta": "1.19023813",
-  "conductor": 4574,
-  "diff_size": 6003,
+  "B": 17032,
+  "base": 34065,
+  "certified_theta": "1.19102809",
+  "conductor": 28922,
+  "diff_size": 32369,
+  "difference_cover": 13066,
   "generators": [
-    312,
-    315,
-    336,
-    416,
-    420
+    1518,
+    1524,
+    1587,
+    2024,
+    2032,
+    2116
   ],
-  "kappa_1": 1463,
-  "lambda_decimal": "0.0016039887760343438",
-  "mask_size": 901,
-  "sum_size": 3882
+  "kappa_1": 14351,
+  "lambda_decimal": "0.000321149844434550835903084464712287774157626054669874186964",
+  "mask_size": 3121,
+  "sum_size": 18730
 }

@@ -1,42 +1,75 @@
 #!/usr/bin/env python3
 """Independent exact reconstruction and high-precision cross-check.
 
-This verifier uses only the Python standard library. It is not the rigorous
-floating-point certificate; verify_mpfr.cpp supplies directed rounding.
+This verifier uses only the Python standard library.  It reconstructs the
+semigroup mask and every shipped certificate file from the six generators.
+It is not the rigorous floating-point certificate; verify_mpfr.cpp supplies
+directed rounding.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import heapq
 import json
 from decimal import Decimal, localcontext
 from pathlib import Path
 
-B = 3084
-Q = 6169
-GENERATORS = (312, 315, 336, 416, 420)
-LIMIT = 10000
-LAMBDA = Decimal("0.0016039887760343438")
-TARGET = Decimal("1.19023813")
+B = 17032
+Q = 34065
+GENERATORS = (1518, 1524, 1587, 2024, 2032, 2116)
+LAMBDA = Decimal(
+    "0.000321149844434550835903084464712287774157626054669874186964"
+)
+TARGET = Decimal("1.19102809")
 EXPECTED = {
-    "mask_size": 901,
-    "sum_size": 3882,
-    "diff_size": 6003,
-    "conductor": 4574,
-    "kappa_1": 1463,
+    "mask_size": 3121,
+    "sum_size": 18730,
+    "diff_size": 32369,
+    "difference_cover": 13066,
+    "conductor": 28922,
+    "kappa_1": 14351,
 }
 
 
-def reconstruct() -> tuple[list[int], list[int], list[tuple[int, int]], int]:
-    reachable = bytearray(LIMIT + 1)
+def semigroup_members(limit: int) -> bytearray:
+    reachable = bytearray(limit + 1)
     reachable[0] = 1
-    for n in range(LIMIT + 1):
+    for n in range(limit + 1):
         if not reachable[n]:
             continue
         for g in GENERATORS:
-            if n + g <= LIMIT:
+            if n + g <= limit:
                 reachable[n + g] = 1
+    return reachable
+
+
+def apery_conductor() -> int:
+    """Compute the conductor from the Apéry set modulo the multiplicity."""
+
+    multiplicity = min(GENERATORS)
+    inf = 10**30
+    dist = [inf] * multiplicity
+    dist[0] = 0
+    queue: list[tuple[int, int]] = [(0, 0)]
+    while queue:
+        value, residue = heapq.heappop(queue)
+        if value != dist[residue]:
+            continue
+        for g in GENERATORS:
+            new_value = value + g
+            new_residue = new_value % multiplicity
+            if new_value < dist[new_residue]:
+                dist[new_residue] = new_value
+                heapq.heappush(queue, (new_value, new_residue))
+    if any(value == inf for value in dist):
+        raise RuntimeError("generators do not define a numerical semigroup")
+    return max(dist) - multiplicity + 1
+
+
+def reconstruct() -> tuple[list[int], list[int], list[tuple[int, int]], int, int]:
+    reachable = semigroup_members(B)
 
     mask = [n for n in range(B + 1) if reachable[n]]
     sums = sorted({a + b for a in mask for b in mask})
@@ -51,24 +84,27 @@ def reconstruct() -> tuple[list[int], list[int], list[tuple[int, int]], int]:
                 costs[idx] = c
     diff_costs = [(idx - B, c) for idx, c in enumerate(costs) if c < inf]
 
-    conductor = None
-    multiplicity = min(g for g in GENERATORS if g > 0)
-    for n in range(LIMIT - multiplicity + 1):
-        if all(reachable[n + j] for j in range(multiplicity)):
-            conductor = n
-            break
-    if conductor is None:
-        raise RuntimeError("reachability limit too small to determine conductor")
+    cost_dict = dict(diff_costs)
+    difference_cover = 0
+    while difference_cover + 1 in cost_dict:
+        difference_cover += 1
 
-    return mask, sums, diff_costs, conductor
+    return mask, sums, diff_costs, difference_cover, apery_conductor()
 
 
-def exact_checks(mask: list[int], sums: list[int], diff_costs: list[tuple[int, int]], conductor: int) -> None:
+def exact_checks(
+    mask: list[int],
+    sums: list[int],
+    diff_costs: list[tuple[int, int]],
+    difference_cover: int,
+    conductor: int,
+) -> None:
     cost_dict = dict(diff_costs)
     checks = {
         "mask_size": len(mask),
         "sum_size": len(sums),
         "diff_size": len(diff_costs),
+        "difference_cover": difference_cover,
         "conductor": conductor,
         "kappa_1": cost_dict[1],
     }
@@ -79,11 +115,18 @@ def exact_checks(mask: list[int], sums: list[int], diff_costs: list[tuple[int, i
             raise AssertionError(f"{key}: got {checks[key]}, expected {expected}")
 
 
-def numerical_check(sums: list[int], diff_costs: list[tuple[int, int]]) -> tuple[Decimal, Decimal, Decimal, Decimal]:
+def numerical_check(
+    sums: list[int], diff_costs: list[tuple[int, int]]
+) -> tuple[Decimal, Decimal, Decimal, Decimal]:
     with localcontext() as ctx:
-        ctx.prec = 100
-        pplus = sum((-LAMBDA * Decimal(s)).exp() for s in sums)
-        pminus = sum((-LAMBDA * Decimal(c)).exp() for _, c in diff_costs)
+        ctx.prec = 110
+        pplus = sum(
+            ((-LAMBDA * Decimal(s)).exp() for s in sums), start=Decimal(0)
+        )
+        pminus = sum(
+            ((-LAMBDA * Decimal(c)).exp() for _, c in diff_costs),
+            start=Decimal(0),
+        )
         f_value = (pminus / pplus).ln()
         th = Decimal(1) + f_value / Decimal(Q).ln()
     if th <= TARGET:
@@ -91,7 +134,13 @@ def numerical_check(sums: list[int], diff_costs: list[tuple[int, int]]) -> tuple
     return pminus, pplus, f_value, th
 
 
-def certificate_text(mask: list[int], sums: list[int], diff_costs: list[tuple[int, int]], conductor: int) -> dict[str, str]:
+def certificate_text(
+    mask: list[int],
+    sums: list[int],
+    diff_costs: list[tuple[int, int]],
+    difference_cover: int,
+    conductor: int,
+) -> dict[str, str]:
     metadata = {
         "B": B,
         "base": Q,
@@ -99,6 +148,7 @@ def certificate_text(mask: list[int], sums: list[int], diff_costs: list[tuple[in
         "mask_size": len(mask),
         "sum_size": len(sums),
         "diff_size": len(diff_costs),
+        "difference_cover": difference_cover,
         "conductor": conductor,
         "kappa_1": dict(diff_costs)[1],
         "lambda_decimal": str(LAMBDA),
@@ -152,10 +202,12 @@ def main() -> None:
     parser.add_argument("--write-certificate", action="store_true")
     args = parser.parse_args()
 
-    mask, sums, diff_costs, conductor = reconstruct()
-    exact_checks(mask, sums, diff_costs, conductor)
+    mask, sums, diff_costs, difference_cover, conductor = reconstruct()
+    exact_checks(mask, sums, diff_costs, difference_cover, conductor)
     pminus, pplus, f_value, th = numerical_check(sums, diff_costs)
-    files = certificate_text(mask, sums, diff_costs, conductor)
+    files = certificate_text(
+        mask, sums, diff_costs, difference_cover, conductor
+    )
 
     if args.write_certificate:
         write_certificate(args.certificate_dir, files)
@@ -165,7 +217,8 @@ def main() -> None:
     print("Exact combinatorial reconstruction: PASS")
     print(
         f"B={B} base={Q} |M|={len(mask)} |M+M|={len(sums)} "
-        f"|M-M|={len(diff_costs)} conductor={conductor} kappa(1)={dict(diff_costs)[1]}"
+        f"|M-M|={len(diff_costs)} cover={difference_cover} "
+        f"conductor={conductor} kappa(1)={dict(diff_costs)[1]}"
     )
     print(f"Pminus = {pminus}")
     print(f"Pplus  = {pplus}")

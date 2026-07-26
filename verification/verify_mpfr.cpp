@@ -9,16 +9,19 @@
 #include <mpfr.h>
 
 namespace {
-constexpr int B = 3084;
+constexpr int B = 17032;
 constexpr int Q = 2 * B + 1;
-constexpr int GENS[] = {312, 315, 336, 416, 420};
-constexpr int EXPECTED_MASK_SIZE = 901;
-constexpr int EXPECTED_SUM_SIZE = 3882;
-constexpr int EXPECTED_DIFF_SIZE = 6003;
-constexpr int EXPECTED_CONDUCTOR = 4574;
-constexpr int EXPECTED_C1 = 1463;
-constexpr const char* LAMBDA_DECIMAL = "0.0016039887760343438";
-constexpr const char* CERTIFIED_THETA = "1.19023813";
+constexpr int GENS[] = {1518, 1524, 1587, 2024, 2032, 2116};
+constexpr int EXPECTED_MASK_SIZE = 3121;
+constexpr int EXPECTED_SUM_SIZE = 18730;
+constexpr int EXPECTED_DIFF_SIZE = 32369;
+constexpr int EXPECTED_DIFFERENCE_COVER = 13066;
+constexpr int EXPECTED_CONDUCTOR = 28922;
+constexpr int EXPECTED_C1 = 14351;
+constexpr int CONDUCTOR_SEARCH_LIMIT = 40000;
+constexpr const char* LAMBDA_DECIMAL =
+    "0.000321149844434550835903084464712287774157626054669874186964";
+constexpr const char* CERTIFIED_THETA = "1.19102809";
 constexpr mpfr_prec_t PRECISION_BITS = 384;
 
 struct Mpfr {
@@ -74,7 +77,7 @@ int conductor(const std::vector<unsigned char>& reachable) {
 
 int main() {
     try {
-        const auto reachable = semigroup_members(10000);
+        const auto reachable = semigroup_members(CONDUCTOR_SEARCH_LIMIT);
         std::vector<int> mask;
         for (int n = 0; n <= B; ++n) {
             if (reachable[static_cast<std::size_t>(n)]) mask.push_back(n);
@@ -99,12 +102,19 @@ int main() {
             diff_cost.begin(), diff_cost.end(), [INF](int x) { return x != INF; }));
         const int c1 = diff_cost[static_cast<std::size_t>(B + 1)];
         const int cond = conductor(reachable);
+        int difference_cover = 0;
+        while (difference_cover + 1 <= B &&
+               diff_cost[static_cast<std::size_t>(B + difference_cover + 1)] != INF) {
+            ++difference_cover;
+        }
 
         require(static_cast<int>(mask.size()) == EXPECTED_MASK_SIZE, "wrong mask size");
         require(!mask.empty() && mask.front() == 0 && mask.back() == B,
                 "wrong mask endpoints");
         require(sum_size == EXPECTED_SUM_SIZE, "wrong sum support size");
         require(diff_size == EXPECTED_DIFF_SIZE, "wrong difference support size");
+        require(difference_cover == EXPECTED_DIFFERENCE_COVER,
+                "wrong initial difference cover");
         require(c1 == EXPECTED_C1, "wrong kappa(1)");
         require(cond == EXPECTED_CONDUCTOR, "wrong conductor");
 
@@ -113,6 +123,7 @@ int main() {
                   << " |M|=" << mask.size()
                   << " |M+M|=" << sum_size
                   << " |M-M|=" << diff_size
+                  << " cover=" << difference_cover
                   << " conductor=" << cond
                   << " kappa(1)=" << c1 << "\n";
 

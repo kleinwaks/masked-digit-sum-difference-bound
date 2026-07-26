@@ -15,7 +15,7 @@
 
 \title{A masked-digit lower bound for the Gyarmati--Hennecart--Ruzsa\\sum--difference constant}
 \author{Logan Kleinwaks}
-\date{July 24, 2026}
+\date{First version: July 24, 2026; Version 1.1: July 26, 2026}
 
 \begin{document}
 \maketitle
@@ -36,16 +36,19 @@ $d\in M-M$, by the least
 possible value of $a+b$ among allowed digits $a,b\in M$ with $a-b=d$.
 Applying the bound to
 \[
- M=\angles{312,315,336,416,420}\cap[0,3084]
+ M=\angles{1518,1524,1587,2024,2032,2116}\cap[0,17032]
 \]
 gives the rigorously certified inequality
 \[
- C_{3a}>1.19023813.
+ C_{3a}>1.19102809.
 \]
-The mask has $901$ elements, $\card{M+M}=3882$, and
-$\card{M-M}=6003$. It belongs to a structured sequence of
-numerical-semigroup constructions rather than being an unstructured search
-output.
+The mask has $3121$ elements, $\card{M+M}=18730$, and
+$\card{M-M}=32369$. Its generators form the product grid
+$\{3,4\}\times\{506,508,529\}$, while the column semigroup is a
+simple gluing with two nearly equal relation degrees.  We analyze the
+exact and near relations induced by this structure and formulate several
+features that appear to make numerical-semigroup masks effective for the
+weighted objective arising in the proof.
 \end{abstract}
 
 \section{Introduction and the finite-set principle}
@@ -59,7 +62,11 @@ that
 \]
 for some $c(K)>0$. Gyarmati, Hennecart and Ruzsa proved the following
 finite-set lower-bound principle \cite{GHR2007}: if $U\subset\N$ is finite
-and contains zero, then
+and contains zero, and if
+\[
+ \card{U-U}<2\max U+1,
+\]
+then
 \begin{equation}\label{eq:GHR}
  C_{3a}\ge
  1+\frac{\log\bigl(\card{U-U}/\card{U+U}\bigr)}
@@ -141,6 +148,16 @@ Since $\kappa$ is even, these weights satisfy $p_d=p_{-d}$. Let
 \[
  \mu=\sum_{d\in D}p_d\kappa(d).
 \]
+The entropy of $p$ is
+\[
+ G(p)=-\sum_{d\in D}p_d\log p_d
+     =\log P_-(x)-\mu\log x.
+\]
+We have $G(p)<\log Q$.  Indeed, $\card D\le Q$.  If $\card D<Q$, this
+follows from $G(p)\le\log\card D$.  If $\card D=Q$, the distribution is
+not uniform: $p_0=1/P_-(x)$, whereas
+$p_d=x^{\kappa(d)}/P_-(x)<p_0$ for $d\ne0$.
+
 For each $d\in D$, choose $\alpha_d,\beta_d\in M$ such that
 \[
  \alpha_d-\beta_d=d,
@@ -154,11 +171,15 @@ Let
 \[
  R=\log\frac{P_-(x)}{P_+(x)}.
 \]
-If $R\le0$, then \eqref{eq:masked-bound} follows from $C_{3a}\ge1$, which
-is obtained from \eqref{eq:GHR} using $U=\{0,1\}$. Assume henceforth that
-$R>0$, and choose
+If $R\le0$, then \eqref{eq:masked-bound} follows from the elementary bound
+$C_{3a}\ge1$ (take $Y=\{0\}$ and arbitrarily large finite $X$).
+Assume henceforth that $R>0$, and choose
 \[
- 0<\varepsilon<\frac{R}{-\log x}.
+ 0<\varepsilon<
+ \min\left\{
+ \frac{R}{-\log x},
+ \frac{\log Q-G(p)}{-\log x}
+ \right\}.
 \]
 For each positive $d\in D$, define
 \[
@@ -177,9 +198,7 @@ By \eqref{eq:multinomial-estimate}, its logarithm is at least
 \[
  -m\sum_{d\in D}q_d^{(m)}\log q_d^{(m)}
  -\log\binom{m+\card D-1}{\card D-1}
- =mG(p)+o(m),
- \qquad
- G(p)=-\sum_{d\in D}p_d\log p_d.
+ =mG(p)+o(m).
 \]
 Indeed, $q_d^{(m)}\to p_d$ for every $d$, the function
 $t\mapsto-t\log t$ is continuous on $[0,1]$ when its value at zero is
@@ -232,11 +251,6 @@ gives $\delta_i=0$ for every $i$. The multinomial estimate above therefore yield
 \begin{equation}\label{eq:diff-lower}
  \liminf_{m\to\infty}\frac1m\log\card{U_m-U_m}\ge G(p).
 \end{equation}
-From \eqref{eq:gibbs},
-\begin{equation}\label{eq:Gp}
- G(p)=\log P_-(x)-\mu\log x.
-\end{equation}
-
 Every element of $U_m+U_m$ has a carry-free base-$Q$ digit sequence
 $(s_0,\ldots,s_{m-1})\in S^m$ with $\sum_i s_i\le2L_m$. If $N_m$ is the
 number of all such sequences, then, because $0<x<1$,
@@ -250,7 +264,7 @@ Thus
  \limsup_{m\to\infty}\frac1m\log\card{U_m+U_m}
  \le \log P_+(x)-(\mu+\varepsilon)\log x.
 \end{equation}
-Combining \eqref{eq:diff-lower}, \eqref{eq:Gp}, and
+Combining \eqref{eq:diff-lower}, the identity defining $G(p)$, and
 \eqref{eq:sum-upper} gives
 \begin{equation}\label{eq:ratio-rate}
  \liminf_{m\to\infty}\frac1m
@@ -258,15 +272,48 @@ Combining \eqref{eq:diff-lower}, \eqref{eq:Gp}, and
  \ge R+\varepsilon\log x>0.
 \end{equation}
 
-Finally, every $u\in U_m$ has digits at most $B$, so
+We must also verify the hypothesis of the finite-set principle
+\eqref{eq:GHR}.  Every difference in $U_m-U_m$ has a unique signed
+base-$Q$ digit sequence $(d_i)\in D^m$.  If it comes from digit sequences
+$(a_i)$ and $(b_i)$ in $U_m$, then
+\[
+ \sum_i\kappa(d_i)
+ \le\sum_i(a_i+b_i)\le2L_m.
+\]
+Let $T_m$ count all sequences in $D^m$ satisfying this cost bound.  Since
+$0<x<1$,
+\[
+ T_mx^{2L_m}
+ \le\sum_{(d_i)\in D^m}x^{\sum_i\kappa(d_i)}
+ =P_-(x)^m.
+\]
+It follows that
+\begin{equation}\label{eq:diff-upper}
+ \limsup_{m\to\infty}\frac1m\log\card{U_m-U_m}
+ \le\log P_-(x)-(\mu+\varepsilon)\log x
+ =G(p)-\varepsilon\log x<\log Q,
+\end{equation}
+where the final inequality is part of the choice of $\varepsilon$.
+
+Every $u\in U_m$ has digits at most $B$, so
 \[
  u\le B\sum_{i=0}^{m-1}Q^i
    =\frac{Q^m-1}{2}.
 \]
-Consequently,
+On the other hand, $\mu>0$ because $B\in D$ and $p_B>0$, so
+$L_m\ge B$ for all sufficiently large $m$;
+then $BQ^{m-1}\in U_m$.  Consequently, if $q_m=2\max U_m+1$, then
 \[
- 2\max U_m+1\le Q^m.
+ (Q-1)Q^{m-1}+1\le q_m\le Q^m
 \]
+for all sufficiently large $m$, and hence
+\[
+ \lim_{m\to\infty}\frac1m\log q_m=\log Q.
+\]
+Together with \eqref{eq:diff-upper}, this proves
+$\card{U_m-U_m}<q_m$ for all sufficiently large $m$, as required in
+\eqref{eq:GHR}.
+
 The numerator in \eqref{eq:GHR} is positive for all sufficiently large
 $m$ by \eqref{eq:ratio-rate}; hence replacing its denominator by the larger
 quantity $m\log Q$ preserves a lower bound. Applying \eqref{eq:GHR} and
@@ -291,154 +338,284 @@ self-contained apart from the finite-set principle \eqref{eq:GHR}
 and the standard multinomial estimate \eqref{eq:multinomial-estimate}.
 \end{remark}
 
+\begin{remark}[The balancing condition at an interior optimum]\label{rem:moment}
+Write $x=e^{-\lambda}$ and
+\[
+ F(\lambda)=\log P_-(e^{-\lambda})-\log P_+(e^{-\lambda}).
+\]
+Give $S$ probability weights proportional to $e^{-\lambda s}$ and give
+$D$ probability weights proportional to $e^{-\lambda\kappa(d)}$.  Direct
+differentiation gives
+\[
+ F'(\lambda)
+ =\mathbb E_+[s]-\mathbb E_-[\kappa(d)].
+\]
+Consequently, every interior stationary point satisfies
+\[
+ \mathbb E_+[s]=\mathbb E_-[\kappa(d)].
+\]
+This identity is useful when comparing masks: the optimizing parameter
+balances the typical weighted sum digit against the typical minimum
+difference-witness cost.  It is not needed for the proof, which uses only
+one fixed value of $\lambda$.
+\end{remark}
+
 \section{The certified mask}
 Let
 \begin{equation}\label{eq:record-mask}
- H=\angles{312,315,336,416,420}
- =\{312a+315b+336c+416d+420e:a,b,c,d,e\in\N\}
+ H=\angles{1518,1524,1587,2024,2032,2116}
 \end{equation}
 and let
 \[
- M=H\cap[0,3084].
+ M=H\cap[0,17032].
 \]
 Exact integer calculation gives
 \[
- B=\max M=3084,
- \qquad
- Q=2B+1=6169,
+ B=\max M=17032,
+ \qquad Q=2B+1=34065,
 \]
 and
 \begin{equation}\label{eq:counts}
- \card M=901,
- \qquad
- \card{M+M}=3882,
- \qquad
- \card{M-M}=6003.
+ \card M=3121,\qquad
+ \card{M+M}=18730,\qquad
+ \card{M-M}=32369.
 \end{equation}
-The conductor of $H$ is $4574$, and the cheapest witness for difference one
+The conductor of $H$ is $28922$.  Moreover,
+\[
+ [-13066,13066]\cap\mathbb Z\subseteq M-M,
+\]
+and the cheapest witness for difference one
 has cost
 \[
- \kappa(1)=1463.
+ \kappa(1)=14351.
 \]
 The verification package contains the complete mask, complete sum support,
 and all values $(d,\kappa(d))$ for $d\in M-M$.
 
 At the fixed decimal value
 \[
- \lambda_0=0.0016039887760343438,
+ \lambda_0=
+ 0.000321149844434550835903084464712287774157626054669874186964,
  \qquad x_0=e^{-\lambda_0},
 \]
 the partition sums are approximately
 \[
- P_-(x_0)=229.6998248684831596707\ldots,
+ P_-(x_0)=668.3247325490738970446\ldots,
  \qquad
- P_+(x_0)=43.66337113593047602635\ldots,
+ P_+(x_0)=91.03099370518693032667\ldots,
 \]
 so
 \[
  \log\frac{P_-(x_0)}{P_+(x_0)}
- =1.66026378574340855999\ldots
+ =1.99357414328979926593\ldots
 \]
 and
 \begin{equation}\label{eq:theta-numerical}
- 1+\frac{\log(P_-(x_0)/P_+(x_0))}{\log 6169}
- =1.19023813803716219098\ldots.
+ 1+\frac{\log(P_-(x_0)/P_+(x_0))}{\log 34065}
+ =1.19102809750994590261\ldots.
 \end{equation}
 The accompanying MPFR verifier uses $384$-bit arithmetic with directed
-rounding. It reconstructs all discrete data from the five generators and
+rounding. It reconstructs all discrete data from the six generators and
 proves the conservative strict inequality
 \begin{equation}\label{eq:certified}
- \boxed{C_{3a}>1.19023813}.
+ \boxed{C_{3a}>1.19102809}.
 \end{equation}
 No optimization claim is needed for the proof: Proposition~\ref{prop:masked}
 holds at the single fixed value $\lambda_0$.
 
-\section{Structure of the successful masks}
-A numerical semigroup is a cofinite additive submonoid of $\N$. The record
-mask emerged from a sequence of numerical-semigroup masks with increasingly
-rich but related structure.
+\section{Structure of the successful masks}\label{sec:structure}
+A numerical semigroup is a cofinite additive submonoid of $\N$.  Numerical
+semigroups are useful here because their missing elements suppress the
+low-degree part of $P_+$, while additive relations among their generators
+create further sum collisions.  The objective is nevertheless not determined
+by the Hilbert series or by the three cardinalities in
+\eqref{eq:counts}.  It also depends on the complete weighted minimum-cost
+function $\kappa$.
 
-\subsection{First structured mask}
-The first strong mask was
+For a generating vector $G=(g_1,\ldots,g_e)$, a useful untruncated analogue
+of $\kappa$ is the residual norm
 \[
- H_1=12\angles{2,3}+13\angles{2,3}
- =\angles{24,26,36,39},
- \qquad B=189,
+ \nu_G(d)=\min\left\{
+ \sum_i(z_i^++z_i^-)g_i:
+ z_i^\pm\in\N,\space
+ \sum_i(z_i^+-z_i^-)g_i=d
+ \right\}.
 \]
-which gives
+Thus $\nu_G(d)$ is the least total cost of two semigroup elements whose
+difference is $d$.  If a minimizing pair lies in $[0,B]$, then
+$\kappa(d)=\nu_G(d)$.  Exact relations, with residual zero, help produce
+sum collisions; near relations with small nonzero residuals help produce
+many difference digits at low cost.  The record combines both kinds.
+
+\subsection{The progression to the record}
+The record emerged from a sequence of increasingly structured
+numerical-semigroup masks:
 \[
- C_{3a}\ge1.1893936243\ldots.
+\begin{array}{c@{\quad}c@{\quad}c}
+\toprule
+\text{semigroup generators} & B & \text{resulting value}\\
+\midrule
+\{24,26,36,39\} & 189 & 1.1893936243\ldots\\
+\{60,63,80,84\} & 538 & 1.1902074763\ldots\\
+\{312,315,336,416,420\} & 3084 & 1.1902381380\ldots\\
+\{1518,1524,1587,2024,2032,2116\} & 17032
+ & 1.1910280975\ldots\\
+\bottomrule
+\end{array}
+\]
+The first two generator sets have the forms
+\[
+ 12\angles{2,3}+13\angles{2,3}
+ \quad\text{and}\quad
+ 20\angles{3,4}+21\angles{3,4}.
+\]
+In the general four-generator family
+$S\angles{k,k+1}+(S+1)\angles{k,k+1}$, the identity
+\[
+ Sk+(S+1)(k+1)=S(k+1)+(S+1)k+1
+\]
+produces a unit residual with shared support.
+
+The former five-generator record is an iterated gluing:
+\[
+ \angles{312,315,336,416,420}
+ =21\angles{15,16,20}+104\angles{3,4},
+\qquad
+ \angles{15,16,20}=5\angles{3,4}+16\N.
+\]
+Gluing is standard in the theory of complete-intersection numerical
+semigroups \cite{AssiGarciaSanchez2013,RosalesGarciaSanchez2009}.
+Studying this decomposition led to searches parameterized by relations
+rather than by unrelated generator coordinates.
+
+\subsection{A balanced simple gluing in the columns}
+Write
+\[
+ C=\angles{506,508,529}.
+\]
+The column semigroup has the exact simple-gluing description
+\begin{equation}\label{eq:column-gluing}
+ C=23\angles{22,23}+508\N,
+ \qquad 508=21\cdot22+2\cdot23.
+\end{equation}
+More generally, for a simple gluing
+\[
+ C_{a,b,r,s}=a\angles{r,s}+b\N
+             =\angles{ar,as,b},
+\]
+where $\gcd(r,s)=\gcd(a,b)=1$ and $b\in\angles{r,s}$,
+the two complete-intersection relation degrees are $ars$ and $ab$, and
+its Hilbert series is
+\[
+ \sum_{n\in C_{a,b,r,s}}t^n
+ =\frac{(1-t^{ars})(1-t^{ab})}
+ {(1-t^{ar})(1-t^{as})(1-t^b)}.
+\]
+For the record parameters
+\[
+ (r,s,a,b)=(22,23,23,508),
+\]
+the relation degrees are
+\[
+ ars=11638,\qquad ab=11684,
+\]
+differing by only $46$, while the generators
+\[
+ ar=506,\qquad b=508,\qquad as=529
+\]
+are also clustered.  The two balances have distinct meanings:
+$b\approx rs$ aligns the relation degrees, whereas $b\approx ar$ clusters
+two generators.  Satisfying both naturally forces $a\approx s$; in the
+record, $a=s$ exactly.  Formula \eqref{eq:column-gluing} also gives
+the column Frobenius number
+\[
+ 23(22\cdot23-22-23)+22\cdot508=21779.
 \]
 
-\subsection{Four-generator improvement}
-The next improvement was
+\subsection{\texorpdfstring{The $2$-by-$3$ generator grid}
+                           {The 2-by-3 generator grid}}
+The record semigroup is generated by the grid
+\begin{equation}\label{eq:grid}
+ \{3,4\}\times\{506,508,529\}
+ =
+ \{1518,1524,1587,2024,2032,2116\}.
+\end{equation}
+For a column $c$, the two row generators have the exact relation
 \[
- H_2=20\angles{3,4}+21\angles{3,4}
- =\angles{60,63,80,84},
- \qquad B=538,
+ 4(3c)=3(4c).
 \]
-which gives
+For the three record columns, these relations occur at degrees
 \[
- C_{3a}\ge1.1902074763\ldots.
+ 6072,\qquad6096,\qquad6348,
 \]
-For the general family
-$S\angles{k,k+1}+(S+1)\angles{k,k+1}$, the generators satisfy
-\[
- Sk+(S+1)(k+1)=S(k+1)+(S+1)k+1.
-\]
-Thus two allowed sums differ by one, helping to keep the difference alphabet
-dense while the semigroup gaps suppress the sum alphabet.
+well before the cutoff $B=17032$.
 
-\subsection{Five-generator record and iterated gluing}
-For numerical semigroups $\Gamma_1,\Gamma_2$ and coprime positive integers
-$d_1,d_2$ with $d_1\in\Gamma_2$ and $d_2\in\Gamma_1$, the semigroup
-$d_1\Gamma_1+d_2\Gamma_2$ is called a gluing. This operation is standard in
-the theory of complete-intersection numerical semigroups
-\cite{AssiGarciaSanchez2013}.
+The column relation $23\cdot506=22\cdot529$ also lifts to the grid:
+\[
+ 5(1518)+2(2024)
+ =2(1587)+4(2116)
+ =11638.
+\]
+The other relation in \eqref{eq:column-gluing} can be lifted after adding
+$4\cdot529$ to both sides:
+\[
+ 5(1524)+2(2032)+2116
+ =7(1518)+2(1587)
+ =13800.
+\]
+Thus several exact relation layers are already active below the chosen
+cutoff, while the conductor of the full six-generator semigroup,
+$28922$, remains substantially larger.
 
-Let
+The same grid simultaneously gives cheap near relations.  If
+$c_i<c_j$ are columns, then
+\begin{equation}\label{eq:grid-residual}
+ (3c_i+4c_j)-(4c_i+3c_j)=c_j-c_i,
+\end{equation}
+and the total cost of the two witnesses is $7(c_i+c_j)$.  The column gaps
+are $2$, $21$, and $23$, so the mask has the explicit bounds
 \[
- \Gamma=\angles{3,4},
- \qquad
- A=\angles{15,16,20}.
+ \kappa(2)\le7098,\qquad
+ \kappa(21)\le7259,\qquad
+ \kappa(23)\le7245.
 \]
-First,
-\[
- A=5\Gamma+16\N.
-\]
-This is a gluing of $\Gamma$ and $\N=\angles{1}$: the coefficient
-$5$ belongs to $\N$, the coefficient $16$ belongs to $\Gamma$
-($16=4\cdot4$), and $\gcd(5,16)=1$. Second,
-\[
- H=21A+104\Gamma.
-\]
-This is a gluing of $A$ and $\Gamma$: the coefficient $21$ belongs to
-$\Gamma$ ($21=7\cdot3$), the coefficient $104$ belongs to $A$
-($104=4\cdot16+2\cdot20$), and $\gcd(21,104)=1$. Thus the displayed
-decomposition exhibits $H$ as an iterated gluing. Since $\N$ and
-$\angles{3,4}$ are complete intersections and gluing preserves the
-complete-intersection property, $H$ is a complete-intersection numerical
-semigroup \cite{AssiGarciaSanchez2013}.
+Because $\gcd(2,21)=1$, the cheap residual directions generate the full
+integer lattice, although combining them can increase witness cost and is
+subject to the cutoff.  In contrast, the exact certificate gives
+$\kappa(1)=14351$.  This illustrates why minimizing $\kappa(1)$ alone is
+not an adequate design criterion: Proposition~\ref{prop:masked} uses the
+entire weighted distribution of $\kappa(d)$.
 
-Four of the five generators form a larger copy of the same unit-defect core:
-\[
- \angles{312,315,416,420}
- =104\angles{3,4}+105\angles{3,4},
-\]
-and
-\[
- 312+420=315+416+1.
-\]
-The additional generator $336=21\cdot16$ selectively changes the gap and
-bridge structure. This nested pattern suggests that the present result may
-belong to a broader family. Searches of several natural nearby families have
-not exhausted all structured gluings, higher embedding dimensions, or
-multilevel digit constraints.
+\subsection{What appears to matter}
+Searches around \eqref{eq:grid} found a narrow interior ridge: consecutive
+$r,s$, equality $a=s$, near equality $b\approx rs\approx ar$, and the row
+pair $\{3,4\}$ were all favored.  Relaxing the relation balance and adding
+a third binary product factor did not improve the record.  These
+computations are evidence about the explored families, not an optimality
+proof.
+
+The structural evidence suggests that a strong semigroup mask should have:
+\begin{enumerate}
+ \item several exact relations becoming active below the cutoff;
+ \item several cheap near relations with small coprime residuals;
+ \item substantial sharing of generators among those relations;
+ \item clustered relation degrees, so that multiple collision mechanisms
+       become active in the same range; and
+ \item delayed density, with the cutoff after the useful relation layers
+       but before the conductor.
+\end{enumerate}
+Product grids and gluings manufacture these features, but neither is
+logically required by Proposition~\ref{prop:masked}.  A natural broader
+program is therefore to prescribe a small weighted relation lattice first
+and solve the resulting Diophantine constraints for the generators.  This
+includes low-rank grids with small circuit defects, carefully selected
+additive gluings, and low-dimensional Kunz-cone faces.  Such a
+relation-template approach is more closely tied to the objective than an
+unstructured search over generator tuples.
 
 \section{Verification and reproducibility}
-The source code, certificate files, and verification scripts accompany this
-paper. Before public release they will be archived at a permanent location,
-whose URL will replace the following placeholder:
+The source code, certificate files, verification scripts, and saved run
+logs are available at
 \[
  \packageurl.
 \]
@@ -457,7 +634,16 @@ The package contains the following independently written checks.
 \end{enumerate}
 
 \section*{Acknowledgements and AI-use disclosure}
-During this work, the author used several large language models (LLMs), as follows: OpenAI's GPT-5.6 Sol model was used extensively in software development, analysis of search results, writing this paper, and preparation of the verification package; Google's Gemini 3.1 Pro Preview was used in software development and analysis of search results; Google's Gemini 3.5 Flash was used to review this paper; Anthropic's Sonnet 5 was used in analysis of search results. The author guided the software development and analysis of search results, noticed emerging structure in promising masks, and prompted the LLMs to reason about generalizations that could yield a stronger result; only GPT-5.6 Sol successfully generalized in a way that achieved a stronger result. The author ran the search and verification software, reviewed this paper, and takes responsibility for the final mathematical claims and references.
+During this work, the author used several large language models (LLMs).
+OpenAI's GPT-5.6 Sol model was used extensively in software development,
+analysis of search results, drafting and revising this paper, and preparation
+of the verification package.  Google's Gemini 3.1 Pro Preview was used in
+software development and analysis of search results; Google's Gemini 3.5
+Flash was used to review the paper; and Anthropic's Sonnet 5 was used in
+analysis of search results.  The author set the research goals, directed the
+computational work, selected which suggestions to pursue, ran the search and
+verification software, reviewed the mathematical arguments and outputs, and
+takes responsibility for all claims and references.
 
 \begin{thebibliography}{99}
 \bibitem{Csiszar1998}
@@ -520,6 +706,11 @@ A. Assi and P. A. Garc\'ia-S\'anchez,
 with a given Frobenius number},
 arXiv:1204.4258, 2013,
 \url{https://arxiv.org/abs/1204.4258}.
+
+\bibitem{RosalesGarciaSanchez2009}
+J. C. Rosales and P. A. Garc\'ia-S\'anchez,
+\emph{Numerical Semigroups},
+Developments in Mathematics, vol.~20, Springer, 2009.
 \end{thebibliography}
 
 \end{document}

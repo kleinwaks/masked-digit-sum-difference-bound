@@ -1,27 +1,41 @@
-# masked-digit-sum-difference-bound
-Proof and verification package for lower bound on the Gyarmati-Hennecart-Ruzsa sum-difference constant via masked-digit construction.
 # A masked-digit lower bound for the Gyarmati–Hennecart–Ruzsa sum–difference constant
 
 This repository contains the proof, certificate data, and independent
 verification programs for a new lower bound on the
 [Gyarmati–Hennecart–Ruzsa sum–difference constant](https://teorth.github.io/optimizationproblems/constants/3a.html),
-denoted $C\_{3a}$ in the
+denoted \(C_{3a}\) in the
 [Optimization Constants in Mathematics](https://github.com/teorth/optimizationproblems)
 repository:
 
 $$
-C\_{3a} > 1.19023813.
+\boxed{C_{3a}>1.19102809}.
 $$
 
 The construction uses the digit mask
 
 $$
-M=\langle 312,315,336,416,420\rangle\cap[0,3084]
+M=\langle1518,1524,1587,2024,2032,2116\rangle\cap[0,17032]
 $$
 
-in base $6169\$.
+in base \(34065\). Its six generators form the product grid
 
-As described in the proof paper, it belongs to a structured sequence of numerical-semigroup constructions rather than being an unstructured search output. Further exploration of the structure that might improve the bound has not been completed.
+$$
+\{3,4\}\times\{506,508,529\}.
+$$
+
+The three-column semigroup has the simple-gluing description
+
+$$
+\langle506,508,529\rangle
+=23\langle22,23\rangle+508\mathbb N_0,
+\qquad
+508=21\cdot22+2\cdot23.
+$$
+
+The proof paper explains how clustered exact relation degrees, cheap
+coprime near-relation residuals, and placement of the cutoff before the
+conductor help this mask simultaneously suppress its sum partition
+polynomial and enlarge its weighted difference partition polynomial.
 
 Please see the proof paper's "Acknowledgements and AI-use disclosure" section to understand how AI has been used in this package.
 
@@ -49,7 +63,9 @@ python3 verification/verify_python.py
 ```
 
 This reconstructs the mask and certificate data, checks their SHA-256
-hashes, and independently evaluates the claimed lower bound.
+hashes, computes the conductor from the Apéry set, and independently
+evaluates the claimed lower bound using Python's high-precision
+`decimal` module.
 
 ### C++ with directed MPFR rounding
 
@@ -74,7 +90,7 @@ The final output should report that the directed-rounding computation
 proves
 
 ```text
-C_3a > 1.19023813
+C_3a > 1.19102809
 ```
 
 The output and build environment from one successful run are recorded in:
@@ -106,8 +122,7 @@ All entries should report `OK`.
 The committed PDF can be rebuilt with:
 
 ```bash
-cd proof
-./build_pdf.sh
+bash proof/build_pdf.sh
 ```
 
 This requires a LaTeX installation with `latexmk`.

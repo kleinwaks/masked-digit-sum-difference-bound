@@ -1,28 +1,30 @@
 Verification date:
-Fri Jul 24 17:45:03 UTC 2026
+Sun Jul 26 15:28:59 UTC 2026
 
 Operating system:
-PRETTY_NAME="Ubuntu 22.04.5 LTS"
+PRETTY_NAME="Ubuntu 24.04.3 LTS"
 NAME="Ubuntu"
-VERSION_ID="22.04"
-VERSION="22.04.5 LTS (Jammy Jellyfish)"
-VERSION_CODENAME=jammy
+VERSION_ID="24.04"
+VERSION="24.04.3 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
 ID=ubuntu
 ID_LIKE=debian
-HOME_URL="https://www.ubuntu.com/"
-SUPPORT_URL="https://help.ubuntu.com/"
-BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
-PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
-UBUNTU_CODENAME=jammy
 
 Compiler:
-g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
-Copyright (C) 2021 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0
 
+Runtime libraries:
+/lib/x86_64-linux-gnu/libmpfr.so.6.2.1
+/lib/x86_64-linux-gnu/libgmp.so.10.5.0
 
-Installed packages:
-g++	4:11.2.0-1ubuntu1
-libgmp-dev:amd64	2:6.2.1+dfsg-3ubuntu1
-libmpfr-dev:amd64	4.1.0-3build3
+Build note:
+The verification container had the MPFR and GMP runtime libraries but
+not their development headers.  For this saved run only,
+verify_mpfr.cpp was compiled against a temporary header containing the
+small ABI-compatible subset of MPFR declarations used by the program,
+and was linked to the runtime libraries listed above.  The temporary
+header is not part of this repository.  The verifier distributed here
+uses the official <mpfr.h> interface and should normally be compiled
+with libmpfr-dev and libgmp-dev, as described in README.md.  The Python
+verifier independently reconstructs the same exact finite data and
+agrees with all displayed numerical values.
