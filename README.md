@@ -3,12 +3,12 @@
 This repository contains the proof, certificate data, and independent
 verification programs for a new lower bound on the
 [Gyarmati–Hennecart–Ruzsa sum–difference constant](https://teorth.github.io/optimizationproblems/constants/3a.html),
-denoted \(C_{3a}\) in the
+denoted $C_{3a}$ in the
 [Optimization Constants in Mathematics](https://github.com/teorth/optimizationproblems)
 repository:
 
 $$
-\boxed{C_{3a}>1.19102809}.
+\boxed{C_\{3a\}>1.19102809}.
 $$
 
 The construction uses the digit mask
