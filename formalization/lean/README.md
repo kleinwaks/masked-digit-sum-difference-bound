@@ -22,16 +22,15 @@ and Mathlib and can use substantial time, bandwidth, and disk space.
 
 ## Theorems to compare with the paper
 
-* `MaskedDigit.MaskData.controlled\_block\_bound` is Proposition 3 with the
-full `Real.log (D.Zminus x k)` term.
-* `MaskedDigit.MaskData.controlled\_pressure\_bound` is the difference-pressure
+* `MaskedDigit.MaskData.controlled_block_bound` is Proposition 3.
+* `MaskedDigit.MaskData.controlled_pressure_bound` is the difference-pressure
 consequence.
-* `MaskedDigit.MaskData.ultimate\_bound` is the two-sided pressure theorem.
-* `MaskedDigit.final\_controlled\_carry\_bound` proves
+* `MaskedDigit.MaskData.ultimate_bound` is the two-sided pressure theorem.
+* `MaskedDigit.final_controlled_carry_bound` proves
 `1.19519192 < MaskedDigit.C3a`.
-* `MaskedDigit.final\_explicit\_finite\_bound` proves
+* `MaskedDigit.final_explicit_finite_bound` proves
 `1.19102809 < MaskedDigit.C3a`.
-* `MaskedDigit.Oriented.halfSign\_encoding\_not\_injective` proves the explicit
+* `MaskedDigit.Oriented.halfSign_encoding_not_injective` proves the explicit
 collision for the rejected global first-half/second-half orientation.
 
 The block-selection proof uses product-weight concentration and an even-parity
@@ -45,7 +44,7 @@ inequalities.
 
 The structural theorems use only the usual Mathlib foundations reported by
 `#print axioms` (`propext`, `Classical.choice`, and `Quot.sound`). The large
-exact computations use `native\_decide`; therefore the two final numerical
+exact computations use `native_decide`; therefore the two final numerical
 theorems additionally report `Lean.ofReduceBool` and `Lean.trustCompiler`.
 This means verification trusts the Lean kernel plus Lean's native-code
 evaluator for those computations.
