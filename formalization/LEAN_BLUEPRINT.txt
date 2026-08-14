@@ -1,0 +1,594 @@
+LEAN FORMALIZATION BLUEPRINT
+Masked digits and controlled carries for the Gyarmati--Hennecart--Ruzsa
+sum-difference constant
+
+Purpose
+=======
+
+This file is a conceptual and technical blueprint for Aristotle.  It is
+separate from the LaTeX paper.  The intended final formalization has two
+layers:
+
+1. an analytic/combinatorial layer proving the masked-digit and fully
+   carry-aware theorems for arbitrary finite data; and
+2. a computational-certificate layer instantiating those theorems at
+   B = 26972, q = 27022 and
+   M = <1971,2016,2100,2628,2688,2800> intersect [0,B].
+
+The first milestone may use `sorry` for the GHR finite-set lemma and for the
+two large numerical certificate facts.  The final version should contain no
+`sorry` and should clearly identify any result imported from an independently
+formalized source.
+
+Suggested Mathlib imports
+=========================
+
+import Mathlib.Algebra.BigOperators.Basic
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Data.Finset.Card
+import Mathlib.Data.Fintype.BigOperators
+import Mathlib.Data.Int.Interval
+import Mathlib.Data.Matrix.Basic
+import Mathlib.Data.Nat.Choose.Sum
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Order.Filter.AtTopBot.CountablyGenerated
+import Mathlib.Order.LiminfLimsup
+import Mathlib.Topology.Instances.ENNReal
+
+It may be easier to split the development into these files:
+
+  GHRConstant.lean
+  MaskData.lean
+  MaskedCarryFree.lean
+  ControlledDifference.lean
+  ControlledSum.lean
+  CarryStateCertificate.lean
+  FiniteCertificate.lean
+  FinalNumerics.lean
+
+Conventions
+===========
+
+* Natural logarithms are `Real.log`.
+* All digit and cost data are natural numbers.  Difference digits and encoded
+  differences are integers.
+* `q` is always at least 2 and satisfies `B < q`; do not silently strengthen
+  this to `2*B < q`.
+* A sum digit is at most `2*B`, so its physical carry is in `{0,1}` because
+  `B < q`.
+* The exact final fugacity is the dyadic rational
+
+      x = 4502448908984447 / 4503599627370496
+        = 4502448908984447 / 2^52
+        = 0x1.ffde827adc0fep-1.
+
+* The finite construction uses the exact rational
+
+      xf = 9996789017186568 / 10^16.
+
+
+PART I.  THE CONSTANT AND THE GHR FINITE-SET PRINCIPLE
+======================================================
+
+One possible definition of the admissible exponent predicate is:
+
+def GHRAdmissible (theta : Real) : Prop :=
+  forall K : Real, 1 < K ->
+    exists c : Real, 0 < c /\
+      forall N : Nat, exists X Y : Finset Int,
+        N <= X.card /\
+        (X + Y).card <= K * X.card /\
+        c * ((X + Y).card : Real) ^ theta <= (X - Y).card
+
+The notation `X + Y` and `X - Y` above is schematic.  Define explicit
+finsets with `Finset.image₂ (· + ·)` and `Finset.image₂ (· - ·)`.  Coerce
+cardinalities to `Real` before multiplying by `K` or taking a real power.
+
+noncomputable def C3a : Real := sSup {theta : Real | GHRAdmissible theta}
+
+If formalizing the exact supremum definition becomes a distraction, use
+`GHRAdmissible theta` as the conclusion of every construction theorem and
+derive the `C3a` statement in a short final file.
+
+Exact external lemma to formalize from GHR2007:
+
+theorem ghr_finite_set_lower_bound
+    (U : Finset Nat)
+    (h0 : 0 ∈ U)
+    (hne : U.Nonempty)
+    (hstrict : (diffFinset U U).card < 2 * (U.max' hne) + 1) :
+    C3a >=
+      1 + Real.log (((diffFinset U U).card : Real) /
+                    ((sumFinset U U).card : Real)) /
+          Real.log (2 * (U.max' hne) + 1) := by
+  sorry
+
+The proof paper cites this as the Gyarmati--Hennecart--Ruzsa finite-set
+principle.  The exact original hypotheses and the direction of every
+inequality should be checked against GHR2007 before completing this theorem.
+
+Important elementary dilation lemma:
+
+theorem dilation_two_supplies_strictness
+    (U : Finset Nat) (h0 : 0 ∈ U) (hne : U.Nonempty)
+    (hmax : 0 < U.max' hne) :
+    (diffFinset (U.image (2 * ·)) (U.image (2 * ·))).card <
+      2 * ((U.image (2 * ·)).max' (by simp [hne])) + 1 := by
+  sorry
+
+Also prove that dilation preserves sumset and difference-set cardinalities.
+This removes a subtle gap: the generic estimate for the undilated set is
+only `|U-U| <= 2*max U + 1`, while GHR requires strict inequality.
+
+
+PART II.  FINITE MASK DATA
+==========================
+
+structure MaskData where
+  B : Nat
+  q : Nat
+  M : Finset Nat
+  B_pos : 0 < B
+  q_gt_B : B < q
+  zero_mem : 0 ∈ M
+  digits_le : forall a ∈ M, a <= B
+  B_mem : B ∈ M
+
+namespace MaskData
+
+def sumSupport (D : MaskData) : Finset Nat :=
+  D.M.biUnion fun a => D.M.image fun b => a + b
+
+def diffSupport (D : MaskData) : Finset Int :=
+  D.M.biUnion fun a => D.M.image fun b => (a : Int) - b
+
+def witnesses (D : MaskData) (d : Int) : Finset (Nat × Nat) :=
+  (D.M ×ˢ D.M).filter fun ab => (ab.1 : Int) - ab.2 = d
+
+noncomputable def kappa (D : MaskData) (d : Int) : Nat :=
+  if hd : d ∈ D.diffSupport then
+    ((D.witnesses d).image fun ab => ab.1 + ab.2).min'
+      (by prove_nonempty_from_hd)
+  else 0
+
+Required lemmas:
+
+theorem kappa_even (D : MaskData) (d : Int) :
+    D.kappa (-d) = D.kappa d := by sorry
+
+theorem exists_min_witness (D : MaskData) (hd : d ∈ D.diffSupport) :
+    exists a ∈ D.M, exists b ∈ D.M,
+      (a : Int) - b = d /\ a + b = D.kappa d := by sorry
+
+theorem kappa_zero (D : MaskData) : D.kappa 0 = 0 := by sorry
+
+For `x : Real`, define
+
+noncomputable def Pplus (D : MaskData) (x : Real) : Real :=
+  ∑ s in D.sumSupport, x ^ s
+
+noncomputable def Pminus (D : MaskData) (x : Real) : Real :=
+  ∑ d in D.diffSupport, x ^ D.kappa d
+
+
+PART III.  THE CARRY-FREE MASKED-DIGIT THEOREM
+==============================================
+
+The theorem statement corresponding to Proposition 2 of the paper is:
+
+theorem masked_digit_bound
+    (D : MaskData)
+    (hcarryfree : D.q = 2 * D.B + 1)
+    (x : Real) (hx0 : 0 < x) (hx1 : x < 1) :
+    C3a >= 1 +
+      (Real.log (D.Pminus x) - Real.log (D.Pplus x)) /
+      Real.log D.q := by
+  sorry
+
+Recommended proof decomposition:
+
+1. Define Gibbs weights `p d = x^(kappa d) / Pminus x`.
+2. Prove symmetry `p (-d) = p d`.
+3. For each construction length `m`, construct symmetric integer type counts
+   by flooring one representative of each pair `{d,-d}` and putting the
+   discrepancy in the zero digit.
+4. Prove the multinomial lower estimate.  Search Mathlib first for an entropy
+   or multinomial estimate.  Otherwise prove only the finite-alphabet version
+   needed here using factorial bounds.
+5. Choose symmetric minimum witnesses `(alpha_d,beta_d)` and prove that the
+   two digit budgets are equal because the unweighted sum of difference
+   digits is zero.
+6. Prove carry-free injectivity from `|d_i-d'_i| < q` by reduction modulo q.
+7. Bound the sumset by the weighted partition function.
+8. Apply the dilation lemma and the GHR finite-set lemma.
+
+Useful exact injectivity statement:
+
+theorem balanced_base_injective
+    (B q m : Nat) (hq : q = 2*B+1)
+    (d e : Fin m -> Int)
+    (hd : forall i, |d i| <= B) (he : forall i, |e i| <= B)
+    (hval : ∑ i, d i * q^(i : Nat) = ∑ i, e i * q^(i : Nat)) :
+    d = e := by
+  sorry
+
+
+PART IV.  CONTROLLED DIFFERENCE BLOCKS
+=======================================
+
+Use `ZMod (q^k)` for residues.  A convenient finite word type is
+`Fin k -> {d // d ∈ D.diffSupport}`.
+
+def diffBlockValue (D : MaskData) (k : Nat) (w : DiffWord D k) : Int :=
+  ∑ i, (w i : Int) * (D.q : Int)^(i : Nat)
+
+def diffBlockCost (D : MaskData) (k : Nat) (w : DiffWord D k) : Nat :=
+  ∑ i, D.kappa (w i)
+
+noncomputable def cMinus (D : MaskData) (k : Nat)
+    (r : ZMod (D.q^k)) : WithTop Nat :=
+  minimum cost among words whose value is congruent to r
+
+noncomputable def Zminus (D : MaskData) (x : Real) (k : Nat) : Real :=
+  ∑ r : ZMod (D.q^k),
+    match D.cMinus k r with
+    | (n : Nat) => x^n
+    | top => 0
+
+Exact theorem statements:
+
+theorem cMinus_concat
+    (D : MaskData) (k l : Nat)
+    (r : ZMod (D.q^k)) (s : ZMod (D.q^l)) :
+    D.cMinus (k+l) (concatResidue r s) <=
+      D.cMinus k r + D.cMinus l s := by
+  sorry
+
+theorem Zminus_supermultiplicative
+    (D : MaskData) (x : Real) (hx0 : 0 < x) (hx1 : x < 1)
+    (k l : Nat) :
+    D.Zminus x k * D.Zminus x l <= D.Zminus x (k+l) := by
+  sorry
+
+Define the difference pressure without relying on a library Fekete lemma if
+necessary:
+
+noncomputable def PminusPressure (D : MaskData) (x : Real) : Real :=
+  sSup {z : Real | exists k >= 1, z = Real.log (D.Zminus x k) / k}
+
+theorem log_Zminus_tendsto_pressure ... :
+    Tendsto (fun k => Real.log (D.Zminus x k) / k) atTop
+      (nhds (D.PminusPressure x)) := by
+  sorry
+
+The fixed-block construction theorem is:
+
+theorem controlled_block_bound
+    (D : MaskData) (x : Real) (hx0 : 0 < x) (hx1 : x < 1)
+    (k : Nat) (hk : 0 < k) :
+    C3a >= 1 +
+      (Real.log (D.Zminus x k) / k - Real.log (D.Pplus x)) /
+      Real.log D.q := by
+  sorry
+
+The proof must explicitly handle the nonzero self-inverse residue
+`q^k/2` when `q^k` is even: use an even type count and orient half the
+occurrences by a minimum word `w` and half by `-w`.  Do not assume every
+nonzero residue occurs in a two-element negation orbit.
+
+
+PART V.  EXACT PRESSURE OF DISTINCT SUM OUTPUTS
+================================================
+
+It is simplest to define this pressure directly from distinct output
+integers.  A sum word is `Fin l -> {s // s ∈ D.sumSupport}`.
+
+def sumWordValue (D : MaskData) (l : Nat) (w : SumWord D l) : Nat :=
+  ∑ i, (w i : Nat) * D.q^(i : Nat)
+
+def sumWordCost ... := ∑ i, (w i : Nat)
+
+def sumOutputs (D : MaskData) (l : Nat) : Finset Nat :=
+  Finset.univ.image (D.sumWordValue l)
+
+noncomputable def cPlus (D : MaskData) (l : Nat) (y : Nat) : Nat :=
+  minimum cost of a sum word with value y
+
+noncomputable def Wplus (D : MaskData) (x : Real) (l : Nat) : Real :=
+  ∑ y in D.sumOutputs l, x ^ D.cPlus l y
+
+The two physical carry states can then be introduced to prove the following
+statements, rather than being built into the primary definition.
+
+theorem Wplus_almost_multiplicative
+    (D : MaskData) (x : Real) (hx0 : 0 < x) (hx1 : x < 1)
+    (r s : Nat) :
+    D.Wplus x (r+s) <= D.Wplus x r * D.Wplus x s /\
+    D.Wplus x r * D.Wplus x s <= 2 * D.Wplus x (r+s) := by
+  sorry
+
+The proof uses the two possible internal carries.  For each concatenated
+canonical output, its minimum-cost weight is the maximum of at most two
+products.  The ordinary two-state matrix product is their sum, which lies
+between the maximum and twice the maximum.
+
+noncomputable def PplusPressure (D : MaskData) (x : Real) : Real :=
+  sInf {z : Real | exists l >= 1, z = Real.log (D.Wplus x l) / l}
+
+theorem Wplus_pressure_limit ... :
+    Tendsto (fun l => Real.log (D.Wplus x l) / l) atTop
+      (nhds (D.PplusPressure x)) := by
+  sorry
+
+theorem finite_sum_pressure_error
+    (D : MaskData) (x : Real) (hx0 : 0 < x) (hx1 : x < 1)
+    (l : Nat) (hl : 0 < l) :
+    0 <= Real.log (D.Wplus x l) / l - D.PplusPressure x /\
+    Real.log (D.Wplus x l) / l - D.PplusPressure x <=
+      Real.log 2 / l := by
+  sorry
+
+
+PART VI.  THE FULLY CARRY-AWARE THEOREM
+========================================
+
+Central abstract theorem:
+
+theorem controlled_carry_pressure_bound
+    (D : MaskData) (x : Real) (hx0 : 0 < x) (hx1 : x < 1) :
+    C3a >= 1 +
+      (D.PminusPressure x - D.PplusPressure x) /
+      Real.log D.q := by
+  sorry
+
+Finite certificate form actually used for the reported decimal:
+
+theorem controlled_carry_finite_pressure_certificate
+    (D : MaskData) (x c p : Real)
+    (hx0 : 0 < x) (hx1 : x < 1)
+    (hc : 0 < c) (hp : 0 < p)
+    (hminus : Real.log c <= D.PminusPressure x)
+    (hplus : D.PplusPressure x <= Real.log p) :
+    C3a >= 1 + Real.log (c / p) / Real.log D.q := by
+  sorry
+
+This theorem follows immediately from the previous theorem and
+`Real.log_div`; keeping it separate isolates the numerical checker from the
+analytic proof.
+
+
+PART VII.  FINITE ACCESSIBLE-SUBGRAPH CERTIFICATE
+=================================================
+
+Do not model the 351951-state operator as a dense matrix.  Use a finite type
+or array of state labels, a sparse transition function, and finite sums over
+the q canonical digits.
+
+Suggested abstract statement:
+
+theorem finite_subgraph_pressure_lower
+    {sigma : Type} [Fintype sigma] [DecidableEq sigma]
+    (T : Matrix sigma sigma Real)
+    (v : sigma -> Real) (c : Real)
+    (hvpos : forall i, 0 < v i)
+    (hcpos : 0 < c)
+    (hcollatz : forall i, c * v i <= ∑ j, T i j * v j)
+    (haccessible : the matrix is a restriction of the exact reachable
+                   carry operator to states reached after a common depth) :
+    Real.log c <= D.PminusPressure x := by
+  sorry
+
+A proof through iteration avoids formalizing complex eigenvalues:
+
+  T^n v >= c^n v componentwise;
+  accessible positive entrance weights convert this into a lower bound for
+  Zminus at lengths h+n;
+  take logarithms and the pressure limit.
+
+The normalized cost-difference state is
+`Int` plus two sentinels `negInf` and `posInf`.  A clean Lean datatype is:
+
+inductive CostState
+| finite : Int -> CostState
+| negInf : CostState
+| posInf : CostState
+
+Formalize the two-cost normalization and the transition formulas exactly as
+equation (29) of the paper.  Prove by induction on the canonical output word
+that accumulated transition cost is `cMinus`.
+
+
+PART VIII.  FINAL NUMERICAL INSTANCE
+====================================
+
+Definitions:
+
+def finalB : Nat := 26972
+def finalQ : Nat := 27022
+def finalGenerators : Finset Nat := {1971,2016,2100,2628,2688,2800}
+
+def generatedUpTo (gens : Finset Nat) (B : Nat) : Finset Nat :=
+  (Finset.range (B+1)).filter fun n =>
+    exists coeff : gens -> Nat, n = ∑ g, coeff g * g
+
+def finalMaskData : MaskData := { ... }
+
+def finalX : Rat := 4502448908984447 / 4503599627370496
+def cCert : Rat := 582117820 / 1000000
+def pCert : Rat := 79428331 / 1000000
+
+Discrete reconstruction theorems:
+
+theorem final_mask_card : finalMaskData.M.card = 5869 := by native_decide
+theorem final_sum_card : finalMaskData.sumSupport.card = 31274 := by native_decide
+theorem final_frontier_card : (frontier finalMaskData 8).card = 351951 := by
+  native_decide
+
+Large certificate facts:
+
+theorem final_difference_certificate :
+    Real.log (cCert : Real) <=
+      finalMaskData.PminusPressure (finalX : Real) := by
+  sorry
+
+theorem final_sum_certificate :
+    finalMaskData.PplusPressure (finalX : Real) <=
+      Real.log (pCert : Real) := by
+  sorry
+
+The intended proofs read the shipped certificate data and invoke a proved
+checker-correctness theorem.  Do not paste a 351951 by 351951 dense matrix
+into Lean.
+
+Exact logarithm comparison:
+
+theorem final_log_comparison :
+    (1 : Real) +
+      Real.log ((582117820 : Real) / 79428331) /
+        Real.log 27022 > 1.19519192 := by
+  sorry
+
+To prove this without trusting transcendental floating point, formalize the
+positive series
+
+  log y = 2 * atanh ((y-1)/(y+1)),   1 <= y < 2,
+  atanh z = sum_{j=0}^{n-1} z^(2j+1)/(2j+1) + positive tail,
+
+with tail at most
+
+  z^(2n+1) / ((2n+1)*(1-z^2)).
+
+Range-reduce positive integers by powers of two.  Fifty terms are more than
+enough for the exact rational comparison used by the Python verifier.
+
+Final theorem:
+
+theorem final_controlled_carry_bound : C3a > 1.19519192 := by
+  have h := controlled_carry_finite_pressure_certificate
+    finalMaskData (finalX : Real) (cCert : Real) (pCert : Real) ...
+  exact lt_of_lt_of_le final_log_comparison h
+
+
+PART IX.  THE EXPLICIT FINITE CONSTRUCTION
+==========================================
+
+Use the carry-free data
+
+  Bf = 17032,
+  Qf = 34065,
+  generators = {1518,1524,1587,2024,2032,2116},
+  N = 10^13,
+  xf = 9996789017186568 / 10^16.
+
+Define the exact rational partition sum `W`, the symmetric counts
+
+  n_d = floor (N * xf^(kappa d) / W),  d > 0,
+  n_(-d) = n_d,
+  n_0 = N - 2 * sum_{d>0} n_d,
+
+and
+
+  L = sum_{d>0} n_d * kappa(d).
+
+The checked exact values are
+
+  n_0 = 14962802398,
+  L   = 51500691976683641.
+
+Define the finite set symbolically; it must not be enumerated during
+evaluation:
+
+  U = { sum_{i=0}^{N-1} a_i Qf^i |
+        every a_i is in Mf and sum_i a_i <= L },
+  V = 2 U.
+
+Exact theorem statements:
+
+theorem finite_difference_count_lower :
+    D_N <= (diffFinset U U).card := by sorry
+
+where
+
+  D_N = N! / (n_0! * product_{d>0} (n_d!)^2).
+
+theorem finite_sum_count_upper :
+    ((sumFinset U U).card : Real) <=
+      Pplus(xf)^N * xf^(-2*L) := by sorry
+
+theorem finite_log_bounds :
+    Real.log D_N > 98126619915169.7944 /\
+    Real.log (Pplus(xf)^N * xf^(-2*L)) < 78190878820128.0915 /\
+    Real.log (2 * Qf^N) < 104360257432078.3785 := by
+  sorry
+
+For the final formal proof, decimals in this theorem should be represented as
+exact rationals.  The logarithm enclosures can use MPFR-style interval
+lemmas formalized over rationals, or the same atanh series as above.
+
+theorem final_explicit_finite_bound : C3a > 1.19102809 := by
+  sorry
+
+This theorem is logically independent of the method-of-types and pressure
+limits.  It uses only finite combinatorics, the GHR finite-set lemma, the
+dilation lemma, and certified finite logarithm bounds.
+
+
+PART X.  CERTIFICATE ENGINEERING RECOMMENDATIONS
+================================================
+
+1. First formalize the analytic theorems with the two large numerical facts
+   as `sorry`.  This is already valuable because it checks all quantifiers,
+   signs, carry conventions, self-inverse residue handling, and limit order.
+
+2. Then formalize checker correctness for compact arrays:
+   * reconstruct the semigroup mask by dynamic programming;
+   * reconstruct kappa by exact integer minima;
+   * reconstruct F_1 through F_8;
+   * verify state labels in the certificate vector;
+   * verify a dyadic lower enclosure for every difference row;
+   * verify an upper enclosure for the 8192-step sum dynamic program.
+
+3. Avoid proving facts about IEEE-754 as a first approach.  Convert each
+   binary64 certificate number to its exact dyadic rational and have the
+   checker operate on integer mantissas plus powers of two.  The C++ verifier's
+   one-sided rounding logic can guide the conversion, but the Lean theorem
+   should state exact rational inequalities.
+
+4. If exact rational powers become too large, certify tables of dyadic lower
+   and upper powers.  Prove locally that
+
+      lowerPow[n+1] <= x * lowerPow[n],
+      x * upperPow[n] <= upperPow[n+1].
+
+   The matrix and dynamic-program checks can then use only dyadic arithmetic.
+
+5. The sum automaton has two physical carries but its determinized
+   minimum-cost state is an integer cost difference plus two sentinels.  Keep
+   these notions separate in names and comments.
+
+6. The 8192-block number is not asserted to equal the infinite pressure.
+   It supplies an upper bound.  The theorem
+
+      0 <= log(W_8192)/8192 - PplusPressure <= log(2)/8192
+
+   explains its distance from the limit.
+
+7. The final search did not prove local optimality.  No formal theorem should
+   call the six-generator mask optimal.
+
+8. Preserve strict inequalities.  The computational checker proves
+
+      rho_minus > 582.117820,
+      W_8192^(1/8192) < 79.428331,
+
+   and the rational log checker proves a strict exponent inequality.
+
+9. The finite theorem applies GHR to `V = 2U`, not directly to `U`.
+   Omitting this dilation leaves the strict GHR hypothesis unproved.
+
+10. The analytic proof fixes a block length before taking the construction
+    size to infinity.  It then takes a supremum or infimum over already valid
+    fixed-block bounds.  Do not interchange these limits.
+
+End of blueprint.

@@ -1,0 +1,11 @@
+{
+  "version": "final-carry-exponent-0.1.0",
+  "certified_strict_lower_bound": "1.19519192",
+  "digits": 8,
+  "difference_lower": "582.117820",
+  "plus_pressure_root_upper": "79.428331",
+  "q": 27022,
+  "plus_depth": 8192,
+  "sum_pressure_theta_uncertainty_at_most": 8.291779818643405e-06,
+  "arithmetic": "exact rational atanh enclosures"
+}

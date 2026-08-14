@@ -1,0 +1,20 @@
+import RequestProject.Main
+import RequestProject.OrientedHalfSplit
+
+#check MaskedDigit.final_controlled_carry_bound
+#check MaskedDigit.final_explicit_finite_bound
+#check MaskedDigit.ghr_finite_set_lower_bound
+#check MaskedDigit.MaskData.controlled_block_bound
+#check MaskedDigit.MaskData.controlled_pressure_bound
+#check MaskedDigit.MaskData.ultimate_bound
+#check MaskedDigit.MaskData.core_bound_oriented
+#check MaskedDigit.Oriented.halfSign_encoding_not_injective
+
+#print axioms MaskedDigit.final_controlled_carry_bound
+#print axioms MaskedDigit.final_explicit_finite_bound
+#print axioms MaskedDigit.ghr_finite_set_lower_bound
+#print axioms MaskedDigit.MaskData.controlled_block_bound
+#print axioms MaskedDigit.MaskData.controlled_pressure_bound
+#print axioms MaskedDigit.MaskData.ultimate_bound
+#print axioms MaskedDigit.MaskData.core_bound_oriented
+#print axioms MaskedDigit.Oriented.halfSign_encoding_not_injective

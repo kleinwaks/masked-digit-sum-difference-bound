@@ -1,0 +1,11 @@
+{
+  "version": "final-carry-certificate-0.1.0",
+  "B": 26972, "q": 27022,
+  "x_hex": "0x1.ffde827adc0fep-1",
+  "frontier": 8, "states": 351951,
+  "plus_depth": 8192,
+  "scale": 1000000,
+  "difference_lower_num": 582117820,
+  "plus_upper_num": 79428331,
+  "sum_pressure_theta_uncertainty_at_most": 8.2917798186434048e-06
+}

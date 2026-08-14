@@ -1,0 +1,19 @@
+{
+  "version": "finite-masked-digit-certificate-3.0",
+  "B": 17032,
+  "base": 34065,
+  "generators": [1518, 1524, 1587, 2024, 2032, 2116],
+  "mask_size": 3121,
+  "sum_support_size": 18730,
+  "difference_support_size": 32369,
+  "x_decimal": "0.9996789017186568",
+  "depth": 10000000000000,
+  "n_zero": 14962802398,
+  "digit_budget": 51500691976683641,
+  "log_difference_lower": "98126619915169.7944",
+  "log_sum_upper": "78190878820128.0915",
+  "log_denominator_upper": "104360257432078.3785",
+  "theta_finite_strict_lower": "1.19102809",
+  "set_definition": "V=2U, U={sum_{i=0}^{N-1} a_i*34065^i : a_i in M and sum_i a_i <= L}",
+  "arithmetic": "exact integer reconstruction and 512-bit MPFR directed rounding"
+}

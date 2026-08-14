@@ -1,143 +1,210 @@
-# A masked-digit lower bound for the Gyarmati–Hennecart–Ruzsa sum–difference constant
+# Improved lower bound for the Gyarmati-Hennecart-Ruzsa sum-difference constant using masked digits and controlled carries
 
-This repository contains the proof, certificate data, and independent
-verification programs for a new lower bound on the
-[Gyarmati–Hennecart–Ruzsa sum–difference constant](https://teorth.github.io/optimizationproblems/constants/3a.html),
-denoted $C_{3a}$ in the
-[Optimization Constants in Mathematics](https://github.com/teorth/optimizationproblems)
-repository:
+This repository contains a proof paper, finite and asymptotic certificates,
+and independent verification programs for the Gyarmati-Hennecart-Ruzsa
+sum-difference constant (C\_{3a}).
 
-$$
-\boxed{C_\{3a\}>1.19102809}.
-$$
+The results are:
 
-The construction uses the digit mask
-
-$$
-M=\langle1518,1524,1587,2024,2032,2116\rangle\cap[0,17032]
-$$
-
-in base 34065. Its six generators form the product grid
-
-$$
-\\{3,4\\}\times\\{506,508,529\\}.
-$$
-
-The three-column semigroup has the simple-gluing description
-
-$$
-\langle506,508,529\rangle
-=23\langle22,23\rangle+508\mathbb N_0,
-\qquad
-508=21\cdot22+2\cdot23.
-$$
-
-The proof paper explains how clustered exact relation degrees, cheap
-coprime near-relation residuals, and placement of the cutoff before the
-conductor help this mask simultaneously suppress its sum partition
-polynomial and enlarge its weighted difference partition polynomial.
-
-Please see the proof paper's "Acknowledgements and AI-use disclosure" section to understand how AI has been used in this package.
-
-## Contents
-
-- [`proof/`](proof/) — the mathematical proof in LaTeX and PDF form
-- [`certificate/`](certificate/) — the mask, sum support, minimum
-  difference costs, metadata, and SHA-256 checksums
-- [`verification/`](verification/) — independent verification programs
-  in Python, C++/MPFR, and PARI/GP, together with saved run logs
-
-The main manuscript is:
-
-- [`proof/masked_digit_bound.pdf`](proof/masked_digit_bound.pdf)
-- [`proof/masked_digit_bound.tex`](proof/masked_digit_bound.tex)
-
-## Verification
-
-Run all commands from the repository root.
-
-### Python
-
-```bash
-python3 verification/verify_python.py
+```text
+explicit finite construction:  C\_3a > 1.19102809
+controlled-carry limit:         C\_3a > 1.19519192
 ```
 
-This reconstructs the mask and certificate data, checks their SHA-256
-hashes, computes the conductor from the Apéry set, and independently
-evaluates the claimed lower bound using Python's high-precision
-`decimal` module.
+The distinction matters. The first inequality follows from one explicitly
+specified finite set and requires no method-of-types or infinite-block limit.
+The second is the stronger limiting result obtained from exact difference and
+sum pressures. This presentation follows the certified-value/limit convention
+in the Optimization Constants in Mathematics contributing guidelines.
 
-### C++ with directed MPFR rounding
+The controlled-carry construction uses
 
-Install the required packages on Debian or Ubuntu:
+```text
+B = 26972
+q = 27022
+M = <1971,2016,2100,2628,2688,2800> intersect \[0,B]
+|M| = 5869
+|M+M| = 31274
+x = 0x1.ffde827adc0fep-1
+```
+
+The rigorous numerical certificate proves
+
+```text
+difference pressure root > 582.117820
+8192-block sum pressure root < 79.428331
+```
+
+and exact rational logarithm enclosures then prove
+
+```text
+1 + log(582.117820 / 79.428331) / log(27022) > 1.19519192.
+```
+
+The finite construction uses the earlier carry-free mask
+
+```text
+Mf = <1518,1524,1587,2024,2032,2116> intersect \[0,17032]
+Q = 34065
+N = 10^13
+xf = 0.9996789017186568
+L = 51500691976683641
+```
+
+and defines
+
+```text
+U = { sum\_(i=0)^(N-1) a\_i Q^i : a\_i in Mf and sum\_i a\_i <= L },
+V = 2U.
+```
+
+Directed MPFR evaluation of exact finite combinatorial formulas gives
+
+```text
+C\_3a > 1.19102809.
+```
+
+No element of the enormous set (U) is enumerated; its defining parameters,
+type counts, factorial formula, and weighted sumset bound are reconstructed
+directly by the verifier.
+
+## Main files
+
+* `proof/masked\_digit\_bound.tex` -- complete proof paper.
+* `proof/masked\_digit\_bound.pdf` -- compiled paper.
+* `certificate/controlled/` -- final controlled-carry configuration,
+positive vector, and certified constants.
+* `verification/controlled/` -- rigorous difference/sum pressure verifier and
+exact-rational exponent checker.
+* `verification/verify\_finite\_mpfr.cpp` -- finite-construction verifier.
+* `certificate/` and the original verification programs -- the previous
+carry-free certificate, retained for independent reconstruction and for the
+finite construction.
+* `formalization/lean/` -- the completed Lean 4/Mathlib formalization produced
+with Aristotle, including exact certificate data and a one-command verifier.
+* `formalization/LEAN\_BLUEPRINT.txt` -- the earlier conceptual blueprint,
+retained as historical and explanatory material rather than as a proof.
+* `pr/` -- proposed optimizationproblems edits and pull-request text.
+
+The proof paper includes an AI-use disclosure describing how language models
+were used. The author directed the research and computation, ran the software,
+reviewed the claims, and takes responsibility for the submission.
+
+## Quick finite verification
+
+On Debian or Ubuntu:
 
 ```bash
 sudo apt install build-essential libmpfr-dev libgmp-dev
+
+g++ -std=c++17 -O2 -Wall -Wextra -Wpedantic \\
+  verification/verify\_finite\_mpfr.cpp \\
+  -lmpfr -lgmp -o verification/verify\_finite\_mpfr
+
+./verification/verify\_finite\_mpfr
 ```
 
-Compile and run:
-
-```bash
-g++ -std=c++17 -O2 -Wall -Wextra -pedantic \
-    verification/verify_mpfr.cpp \
-    -lmpfr -lgmp \
-    -o verification/verify_mpfr
-
-./verification/verify_mpfr
-```
-
-The final output should report that the directed-rounding computation
-proves
+This check normally completes in seconds. It reconstructs the mask, all
+minimum difference costs, the complete symmetric type, and the rigorous
+finite logarithm bounds. Its final line should be:
 
 ```text
-C_3a > 1.19102809
+PASS: the explicit finite set V=2U proves C\_3a > 1.19102809
 ```
 
-The output and build environment from one successful run are recorded in:
+## Full controlled-carry verification
 
-- [`verification/verify_mpfr_output.txt`](verification/verify_mpfr_output.txt)
-- [`verification/verify_mpfr_environment.txt`](verification/verify_mpfr_environment.txt)
-
-### PARI/GP
-
-With PARI/GP installed, run:
+The controlled certificate is much more computationally demanding. The verifier
+below repeats only the final certificate, not the search.
 
 ```bash
-gp -q verification/verify_gp.gp
+g++ -std=c++17 -O3 -Wall -Wextra -Wpedantic \\
+  -fopenmp -fno-fast-math -ffp-contract=off \\
+  verification/controlled/certify\_candidate.cpp \\
+  -o verification/controlled/certify\_candidate
+
+OMP\_NUM\_THREADS=20 verification/controlled/certify\_candidate \\
+  certificate/controlled/candidate.cfg \\
+  certificate/controlled/pf8\_vector.hex \\
+  certificate/controlled/rigorous\_constants.recomputed.json \\
+  20
+
+python3 verification/controlled/verify\_exponent.py \\
+  certificate/controlled/rigorous\_constants.recomputed.json \\
+  certificate/controlled/certified\_bound.recomputed.json 8
 ```
 
-## Certificate integrity
+The generated files should report
 
-To check the certificate files against their recorded hashes:
+```text
+difference\_lower = 582.117820
+plus\_pressure\_root\_upper = 79.428331
+certified\_strict\_lower\_bound = 1.19519192
+```
+
+Do not compile the controlled verifier with `-ffast-math`. It requires
+IEEE-754 binary64, round-to-nearest operation, and no excess-precision
+evaluation.
+
+## Rechecking the shipped exponent only
+
+The pressure computation does not need to be repeated merely to check the
+final decimal conversion:
 
 ```bash
-cd certificate
-sha256sum -c SHA256SUMS
+python3 verification/controlled/verify\_exponent.py \\
+  certificate/controlled/rigorous\_constants.json \\
+  /tmp/certified\_bound.json 8
 ```
 
-All entries should report `OK`.
+This script uses exact rational arithmetic and explicit atanh-series tails;
+it does not trust a floating-point implementation of `log`.
+
+## Previous carry-free cross-checks
+
+The original carry-free package remains available:
+
+```bash
+python3 verification/verify\_python.py
+
+g++ -std=c++17 -O2 -Wall -Wextra -Wpedantic \\
+  verification/verify\_mpfr.cpp -lmpfr -lgmp \\
+  -o verification/verify\_mpfr
+./verification/verify\_mpfr
+
+gp -q verification/verify\_gp.gp
+```
 
 ## Building the paper
 
-The committed PDF can be rebuilt with:
-
 ```bash
-bash proof/build_pdf.sh
+bash proof/build\_pdf.sh
 ```
 
-This requires a LaTeX installation with `latexmk`.
+This requires `latexmk` and the LaTeX packages named in the source.
 
-## Reproducibility
+## Verifying the Lean formalization
 
-The proof uses exact finite certificate data. The numerical conclusion is
-checked independently by:
+The Lean project is pinned to Lean 4.28.0 and a fixed Mathlib revision. On a
+machine with `elan`, `git`, `curl`, and `zstd` installed, run:
 
-1. a Python reconstruction,
-2. a C++ verifier using directed MPFR rounding, and
-3. a PARI/GP verifier.
+```bash
+cd formalization/lean
+./verify.sh
+```
 
-The MPFR verifier is the rigorous floating-point certification of the
-stated decimal inequality.
+The first run downloads the pinned toolchain, Mathlib dependencies, and the
+Mathlib build cache. It can therefore take several minutes and use substantial
+disk space. A successful run ends with `PASS` after building the complete
+project, printing the principal theorem and axiom reports, and checking that
+the project sources contain no `sorry`, `admit`, or explicit project axiom.
+
+The formal theorem `MaskedDigit.MaskData.controlled\_block\_bound` is the full
+finite-block statement from the paper. The formal proof uses product-weight
+concentration with an even-parity restriction, while the paper presents a
+fixed-exact-type argument; both prove the same inequality. The large exact
+certificate checks use `native\_decide`, so the final numerical theorems'
+axiom reports include `Lean.trustCompiler`.
 
 ## Author
 
@@ -145,4 +212,5 @@ Logan Kleinwaks
 
 ## License
 
-See [`LICENSE`](LICENSE).
+See `LICENSE`.
+

@@ -5,63 +5,108 @@
 \usepackage{lmodern}
 \usepackage[hidelinks]{hyperref}
 \usepackage{microtype}
+\hypersetup{
+  pdftitle={Improved lower bound for the Gyarmati-Hennecart-Ruzsa sum-difference constant using masked digits and controlled carries},
+  pdfauthor={Logan Kleinwaks}
+}
 
 \newtheorem{proposition}{Proposition}
+\newtheorem{theorem}[proposition]{Theorem}
+\newtheorem{lemma}[proposition]{Lemma}
 \newtheorem{remark}{Remark}
 \newcommand{\N}{\mathbb{N}_0}
 \newcommand{\card}[1]{\lvert #1\rvert}
 \newcommand{\angles}[1]{\langle #1\rangle}
 \newcommand{\packageurl}{\texttt{https://github.com/kleinwaks/masked-digit-sum-difference-bound}}
 
-\title{A masked-digit lower bound for the Gyarmati--Hennecart--Ruzsa\\sum--difference constant}
+\title{Improved lower bound for the\\Gyarmati--Hennecart--Ruzsa
+sum-difference constant\\using masked digits and controlled carries}
 \author{Logan Kleinwaks}
-\date{First version: July 24, 2026; Version 1.1: July 26, 2026}
+\date{First version: July 24, 2026; Version 3.2: August 14, 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-The Gyarmati--Hennecart--Ruzsa sum--difference constant quantifies how large
-a difference set $X-Y$ can be relative to the sumset $X+Y$ for arbitrarily
-large finite sets $X,Y$ of integers satisfying
-$\lvert X+Y\rvert\le K\lvert X\rvert$. Zheng's 2025 lower-bound
-construction encodes bounded integer vectors as base-$(2B+1)$ integers,
-allows every digit in $\{0,1,\ldots,B\}$, and imposes a global cap on the
-sum of the digits. We generalize this construction by allowing the
-digits to lie in an arbitrary finite mask
-$M\subseteq\{0,1,\ldots,B\}$. A standard finite-alphabet multinomial estimate, combined with a
-carry-free digit argument, reduces the resulting asymptotic lower bound to
-two finite partition polynomials determined by $M+M$ and, for each
-$d\in M-M$, by the least
-possible value of $a+b$ among allowed digits $a,b\in M$ with $a-b=d$.
-Applying the bound to
+Zheng's bounded-digit construction lower bounding the Gyarmati--Hennecart--Ruzsa
+sum-difference constant forms integers in a fixed base, restricts every digit
+to an interval from zero to a largest digit $B$, and imposes a bound on the
+sum of the digits.  We first replace the complete digit interval by an
+arbitrary finite mask $M\subseteq\{0,\ldots,B\}$.  When the
+base is $2B+1$, addition and subtraction are carry-free, and a
+method-of-types argument expresses the resulting limiting bound through two
+finite partition polynomials.
+
+We next replace the carry-free base by an arbitrary integer $q>B$.  On the difference
+side, each residue block is assigned its exact minimum witness cost; on the
+sum side, all representations of the same output block are combined before
+they are counted.  Supermultiplicativity and submultiplicativity show that
+the corresponding block pressures have limits.  A positive-vector
+certificate on a $351951$-state accessible subgraph, together with a
+directed $8192$-digit sum-pressure computation, proves
 \[
- M=\angles{1518,1524,1587,2024,2032,2116}\cap[0,17032]
+ \boxed{C_{3a}>1.19519192}.
 \]
-gives the rigorously certified inequality
-\[
- C_{3a}>1.19102809.
-\]
-The mask has $3121$ elements, $\card{M+M}=18730$, and
-$\card{M-M}=32369$. Its generators form the product grid
-$\{3,4\}\times\{506,508,529\}$, while the column semigroup is a
-simple gluing with two nearly equal relation degrees.  We analyze the
-exact and near relations induced by this structure and formulate several
-features that appear to make numerical-semigroup masks effective for the
-weighted objective arising in the proof.
+The construction uses $B=26972$, $q=27022$, and
+$M=\langle1971,2016,2100,2628,2688,2800\rangle\cap[0,B]$.
+Finally, we give a single explicitly specified finite set certifying
+$C_{3a}>1.19102809$.  This finite certificate uses neither a
+method-of-types limit nor an infinite-block pressure.
 \end{abstract}
 
+\section*{Formal verification and AI-use disclosure}
+An accompanying Lean~4/\href{https://github.com/leanprover-community/mathlib4}{Mathlib}
+formalization was produced with Aristotle (Harmonic) \cite{Aristotle2025} and is included
+in the repository.  It machine-checks the definition of $C_{3a}$, the
+Gyarmati--Hennecart--Ruzsa finite-set principle used here, the masked-digit
+construction, the full controlled finite-block bound, the controlled
+difference and sum pressure limits, the finite-state comparison arguments,
+the semigroup lemmas, and, in particular, the two conclusions $C_{3a}>1.19519192$ and, from the explicit finite construction, $C_{3a}>1.19102809$.
+
+The source contains no \texttt{sorry}.  Its large exact computations are
+evaluated with \texttt{native\_decide}; consequently, the corresponding
+axiom report includes \texttt{Lean.trustCompiler} in addition to the standard
+Mathlib quotient, choice, and extensionality axioms.
+
+The formal proof of Proposition~\ref{prop:controlled-block} retains the
+possible nonzero self-inverse residue and implements the positional
+orientation described below by pairing consecutive occurrences from left to
+right.  Its block-selection argument uses product-weight concentration with
+an even-parity restriction, rather than the fixed exact type displayed in
+the paper; it proves the same inequality.  The formal numerical
+proof verifies the two pressure inequalities through exact truncated cost
+automata with $64003$ difference states and $120001$ sum states.  These are
+sound finite relaxations of the exact pressures, but they are not a
+line-by-line replay of the independent $351951$-state and $8192$-digit
+computations described in Section~\ref{sec:controlled-certificate}.
+
+During this work, the author used several large language models (LLMs).
+OpenAI's GPT-5.6 Sol model was used extensively in software development,
+analysis of search results, drafting and revising this paper, and preparation
+of the verification package.  Google's Gemini 3.1 Pro Preview was used in
+software development and analysis of search results; Google's Gemini 3.5
+Flash and Gemini 3.6 Flash were used to review the paper; and Anthropic's
+Sonnet 5 was used in analysis of search results.  Aristotle produced the
+Lean formalization, which was subsequently audited against the mathematical
+statements in this paper.  Substantial portions of the initial prose and
+source code were generated or revised with this assistance.  The author set
+the research goals, directed the computational work, selected which
+suggestions to pursue, ran the search and verification software, reviewed the
+mathematical arguments and outputs, and takes responsibility for all claims
+and references.
+
 \section{Introduction and the finite-set principle}
-Let $C_{3a}$ denote the largest exponent $\theta$ for which, for every
-$K>1$, there are arbitrarily large finite sets $X,Y\subset\mathbb Z$ such
-that
+Let $C_{3a}$ be the supremum of the exponents $\theta$ with the following
+property: for every $K>1$, there is a constant $c(K)>0$ and there are pairs
+of nonempty finite sets $X,Y\subset\mathbb Z$, for arbitrarily large values of
+$\card X$, such that
 \[
  \card{X+Y}\le K\card X,
  \qquad
- \card{X-Y}\ge c(K)\card{X+Y}^{\theta}
+ \card{X-Y}\ge c(K)\card{X+Y}^{\theta}.
 \]
-for some $c(K)>0$. Gyarmati, Hennecart and Ruzsa proved the following
-finite-set lower-bound principle \cite{GHR2007}: if $U\subset\N$ is finite
+Gyarmati, Hennecart, and Ruzsa proved the following
+finite-set lower-bound principle \cite[Lemma in Section~2]{GHR2007}: if $U\subset\N$ is finite
 and contains zero, and if
 \[
  \card{U-U}<2\max U+1,
@@ -73,15 +118,45 @@ then
           {\log(2\max U+1)}.
 \end{equation}
 
+For any finite $U\subset\N$ containing zero, the elementary containment
+$U-U\subseteq[-\max U,\max U]$ gives only
+$\card{U-U}\le2\max U+1$, whereas the hypothesis of \eqref{eq:GHR} is
+strict.  Dilation supplies strictness without requiring any further
+information about $U$.  If $\max U>0$ and $V=2U$, then
+\[
+ \card{V-V}=\card{U-U},\qquad
+ \card{V+V}=\card{U+U},\qquad
+ \max V=2\max U.
+\]
+Consequently,
+\[
+ \card{V-V}=\card{U-U}\le 2\max U+1
+ <4\max U+1=2\max V+1.
+\]
+Thus $V$ satisfies the strict hypothesis of \eqref{eq:GHR}, whether or not
+$U$ does, and
+\begin{equation}\label{eq:GHR-dilated}
+ C_{3a}\ge
+ 1+\frac{\log\bigl(\card{U-U}/\card{U+U}\bigr)}
+          {\log(4\max U+1)}.
+\end{equation}
+The price is the replacement of $\log(2\max U+1)$ by
+$\log(4\max U+1)$.  In the limiting constructions this does not change the
+exponential rate; in the finite certificate it adds less than $\log2$ to a
+denominator of order $10^9$.  We use the dilation because strictness for the
+undilated sets is not otherwise established.
+
 Recent computational work on this constant includes AlphaEvolve
 \cite{GeorgievEtAl2025}, Gerbicz's large finite construction
 \cite{Gerbicz2025}, and Zheng's large-deviation construction
 \cite{Zheng2025}. The \emph{Optimization Constants in Mathematics} repository
 \cite{OptimizationConstants2026} subsequently listed the finite-certificate
 bounds $1.1740744$ and $1.1835129324$ \cite{Griego2026,Mosaic2026}.
-During preparation of this note, a further open submission to that repository
-proposed $1.187326127925948$ \cite{Numaro2026}. The bound proved here
-exceeds all of these values.
+Two submissions merged in July 2026 then gave the limiting values
+$1.187326127925948$ \cite{Numaro2026} and $1.19102809$
+\cite{Kleinwaks2026}.  The controlled-carry generalization proved here raises
+the limiting bound to $1.19519192$, while the separate finite certificate
+gives $1.19102809$ without asymptotic analysis.
 
 Gerbicz introduced bounded base digits into the original construction, and
 Zheng analyzed the limiting exponential growth of a bounded-digit family.
@@ -91,7 +166,23 @@ many possible sum digits while preserving difference digits $d$ that admit
 witnesses $a,b\in M$ with $a-b=d$ and small $a+b$, so that they use little
 of the two digit-sum budgets in the construction. The multinomial counting
 estimate used below is standard; Proposition~\ref{prop:masked} is the
-construction-specific arbitrary-mask consequence.
+construction-specific arbitrary-mask consequence.  We first retain the
+carry-free base $2B+1$ and then replace it by any $q>B$.  The latter step
+allows controlled carries and leads to a transfer operator whose pressure is
+the $k\to\infty$ block limit.  After proving and certifying the two bounds, we
+give a separate finite-depth witness and then discuss the numerical-semigroup
+structure that guided the search.
+
+\begin{theorem}[Main theorem]\label{thm:main}
+The Gyarmati--Hennecart--Ruzsa constant satisfies
+\[
+ C_{3a}>1.19519192.
+\]
+In addition, a single explicitly specified finite set, without recourse to
+either asymptotic theorem in this paper, certifies $C_{3a}>1.19102809$.
+\end{theorem}
+The two assertions are proved in Sections~\ref{sec:controlled-certificate}
+and~\ref{sec:finite-certificate}, respectively.
 
 \section{The masked-digit bound}
 Let $M\subset\N$ be finite with $0\in M$ and
@@ -111,14 +202,13 @@ The function $\kappa$ is even: $\kappa(-d)=\kappa(d)$. Define
  \qquad
  P_-(x)=\sum_{d\in D}x^{\kappa(d)}.
 \end{equation}
-
 We use the following standard lower bound for a multinomial coefficient;
 see, for example, Csisz\'ar~\cite[Lemmas~II.1 and~II.2]{Csiszar1998}.
-If $E$ is a nonempty finite set and nonnegative integers $r_e$ satisfy
-$\sum_{e\in E}r_e=m$, let $q_e=r_e/m$. Then
+If $E$ is a nonempty finite set and nonnegative integers $m_e$ satisfy
+$\sum_{e\in E}m_e=m$, let $\pi_e=m_e/m$. Then
 \begin{equation}\label{eq:multinomial-estimate}
- \log\frac{m!}{\prod_{e\in E}r_e!}
- \ge -m\sum_{e\in E}q_e\log q_e
+ \log\frac{m!}{\prod_{e\in E}m_e!}
+ \ge -m\sum_{e\in E}\pi_e\log \pi_e
       -\log\binom{m+\card E-1}{\card E-1},
 \end{equation}
 where $\log$ is the natural logarithm and $0\log0$ is interpreted as zero.
@@ -153,10 +243,6 @@ The entropy of $p$ is
  G(p)=-\sum_{d\in D}p_d\log p_d
      =\log P_-(x)-\mu\log x.
 \]
-We have $G(p)<\log Q$.  Indeed, $\card D\le Q$.  If $\card D<Q$, this
-follows from $G(p)\le\log\card D$.  If $\card D=Q$, the distribution is
-not uniform: $p_0=1/P_-(x)$, whereas
-$p_d=x^{\kappa(d)}/P_-(x)<p_0$ for $d\ne0$.
 
 For each $d\in D$, choose $\alpha_d,\beta_d\in M$ such that
 \[
@@ -172,22 +258,27 @@ Let
  R=\log\frac{P_-(x)}{P_+(x)}.
 \]
 If $R\le0$, then \eqref{eq:masked-bound} follows from the elementary bound
-$C_{3a}\ge1$ (take $Y=\{0\}$ and arbitrarily large finite $X$).
-Assume henceforth that $R>0$, and choose
+$C_{3a}\ge1$.  For example, fix $0<\delta<K-1$ and take
+$X_n=\{0,\ldots,n-1\}$ and
+$Y_n=\{0,\ldots,\lfloor\delta n\rfloor-1\}$.  For all sufficiently large
+$n$, these intervals satisfy $\card{X_n+Y_n}\le K\card{X_n}$, and their
+sumset and difference set have the same cardinality.  Assume henceforth that $R>0$,
+and choose
 \[
- 0<\varepsilon<
- \min\left\{
- \frac{R}{-\log x},
- \frac{\log Q-G(p)}{-\log x}
- \right\}.
+ 0<\varepsilon<\frac{R}{-\log x}.
 \]
-For each positive $d\in D$, define
+For each positive integer $m$ and each positive $d\in D$, define
 \[
  n_d^{(m)}=n_{-d}^{(m)}=\lfloor mp_d\rfloor,
  \qquad
  n_0^{(m)}=m-2\sum_{\substack{d\in D\\d>0}}\lfloor mp_d\rfloor.
 \]
-These are nonnegative integers, their sum is $m$, and
+These are nonnegative integers for every $m$: indeed, symmetry gives
+$2\sum_{d>0}p_d=1-p_0$, and hence
+\[
+ n_0^{(m)}\ge m-2m\sum_{d>0}p_d=mp_0>0.
+\]
+Their sum is $m$, and, as $m\to\infty$,
 $n_d^{(m)}/m\to p_d$ for every $d\in D$.  Write
 $q_d^{(m)}=n_d^{(m)}/m$.  The number of sequences containing exactly
 $n_d^{(m)}$ copies of each $d$ is the multinomial coefficient
@@ -208,6 +299,9 @@ large $m$,
 \[
  \sum_{d\in D}n_d^{(m)}\kappa(d)\le(\mu+\varepsilon)m.
 \]
+More explicitly, each type count differs from $mp_d$ by $O_D(1)$, so the
+rounding changes the total cost by $O_{D,\kappa}(1)$ and the normalized
+entropy by $o(1)$.
 Set
 \[
  L_m=\left\lfloor\frac{(\mu+\varepsilon)m}{2}\right\rfloor
@@ -244,7 +338,7 @@ The map from difference-digit sequences to integers is injective. Indeed, if
 \[
  \sum_i d_iQ^i=\sum_i d'_iQ^i,
 \]
-then, with $\delta_i=d_i-d'_i$, we have
+then, since $D\subseteq[-B,B]$, with $\delta_i=d_i-d'_i$ we have
 $\sum_i\delta_iQ^i=0$ and $|\delta_i|\le2B<Q$. Reduction modulo
 $Q=2B+1$ therefore gives $\delta_0=0$; after division by $Q$, induction
 gives $\delta_i=0$ for every $i$. The multinomial estimate above therefore yields
@@ -253,7 +347,8 @@ gives $\delta_i=0$ for every $i$. The multinomial estimate above therefore yield
 \end{equation}
 Every element of $U_m+U_m$ has a carry-free base-$Q$ digit sequence
 $(s_0,\ldots,s_{m-1})\in S^m$ with $\sum_i s_i\le2L_m$. If $N_m$ is the
-number of all such sequences, then, because $0<x<1$,
+number of all such digit sequences $(s_0,\ldots,s_{m-1})\in S^m$ satisfying
+$\sum_i s_i\le2L_m$, then, because $0<x<1$,
 \[
  N_mx^{2L_m}
  \le\sum_{(s_i)\in S^m}x^{\sum_i s_i}
@@ -272,29 +367,6 @@ Combining \eqref{eq:diff-lower}, the identity defining $G(p)$, and
  \ge R+\varepsilon\log x>0.
 \end{equation}
 
-We must also verify the hypothesis of the finite-set principle
-\eqref{eq:GHR}.  Every difference in $U_m-U_m$ has a unique signed
-base-$Q$ digit sequence $(d_i)\in D^m$.  If it comes from digit sequences
-$(a_i)$ and $(b_i)$ in $U_m$, then
-\[
- \sum_i\kappa(d_i)
- \le\sum_i(a_i+b_i)\le2L_m.
-\]
-Let $T_m$ count all sequences in $D^m$ satisfying this cost bound.  Since
-$0<x<1$,
-\[
- T_mx^{2L_m}
- \le\sum_{(d_i)\in D^m}x^{\sum_i\kappa(d_i)}
- =P_-(x)^m.
-\]
-It follows that
-\begin{equation}\label{eq:diff-upper}
- \limsup_{m\to\infty}\frac1m\log\card{U_m-U_m}
- \le\log P_-(x)-(\mu+\varepsilon)\log x
- =G(p)-\varepsilon\log x<\log Q,
-\end{equation}
-where the final inequality is part of the choice of $\varepsilon$.
-
 Every $u\in U_m$ has digits at most $B$, so
 \[
  u\le B\sum_{i=0}^{m-1}Q^i
@@ -302,26 +374,28 @@ Every $u\in U_m$ has digits at most $B$, so
 \]
 On the other hand, $\mu>0$ because $B\in D$ and $p_B>0$, so
 $L_m\ge B$ for all sufficiently large $m$;
-then $BQ^{m-1}\in U_m$.  Consequently, if $q_m=2\max U_m+1$, then
+then $BQ^{m-1}\in U_m$.  Consequently
 \[
- (Q-1)Q^{m-1}+1\le q_m\le Q^m
+ 2(Q-1)Q^{m-1}+1
+ \le 4\max U_m+1
+ \le 2Q^m-1
 \]
 for all sufficiently large $m$, and hence
 \[
- \lim_{m\to\infty}\frac1m\log q_m=\log Q.
+ \lim_{m\to\infty}\frac1m\log(4\max U_m+1)=\log Q.
 \]
-Together with \eqref{eq:diff-upper}, this proves
-$\card{U_m-U_m}<q_m$ for all sufficiently large $m$, as required in
-\eqref{eq:GHR}.
-
-The numerator in \eqref{eq:GHR} is positive for all sufficiently large
-$m$ by \eqref{eq:ratio-rate}; hence replacing its denominator by the larger
-quantity $m\log Q$ preserves a lower bound. Applying \eqref{eq:GHR} and
-taking the lower limit of the resulting right-hand side gives
+The numerator in \eqref{eq:GHR-dilated} is positive for all sufficiently
+large $m$ by \eqref{eq:ratio-rate}.  Apply \eqref{eq:GHR-dilated} to $U_m$
+and take the lower limit of the resulting right-hand side.  The preceding
+denominator limit and \eqref{eq:ratio-rate} give
 \[
  C_{3a}\ge1+\frac{R+\varepsilon\log x}{\log Q}.
 \]
-Letting $\varepsilon\downarrow0$ proves \eqref{eq:masked-bound}.
+For each fixed admissible $\varepsilon$, this conclusion follows after the
+construction-size limit $m\to\infty$.  Since the left side is independent of
+$\varepsilon$, it is at least the supremum of these lower bounds.  Letting
+$\varepsilon\downarrow0$ in that supremum proves \eqref{eq:masked-bound}; no
+interchange of two limits is being used.
 \end{proof}
 
 \begin{remark}[Recovery of Zheng's optimization]
@@ -339,7 +413,7 @@ and the standard multinomial estimate \eqref{eq:multinomial-estimate}.
 \end{remark}
 
 \begin{remark}[The balancing condition at an interior optimum]\label{rem:moment}
-Write $x=e^{-\lambda}$ and
+Parameterize $x=e^{-\lambda}$, with $\lambda>0$, and write
 \[
  F(\lambda)=\log P_-(e^{-\lambda})-\log P_+(e^{-\lambda}).
 \]
@@ -360,7 +434,7 @@ difference-witness cost.  It is not needed for the proof, which uses only
 one fixed value of $\lambda$.
 \end{remark}
 
-\section{The certified mask}
+\section{A carry-free masked-digit example}
 Let
 \begin{equation}\label{eq:record-mask}
  H=\angles{1518,1524,1587,2024,2032,2116}
@@ -398,7 +472,7 @@ At the fixed decimal value
  0.000321149844434550835903084464712287774157626054669874186964,
  \qquad x_0=e^{-\lambda_0},
 \]
-the partition sums are approximately
+the partition sums have decimal expansions
 \[
  P_-(x_0)=668.3247325490738970446\ldots,
  \qquad
@@ -414,16 +488,638 @@ and
  1+\frac{\log(P_-(x_0)/P_+(x_0))}{\log 34065}
  =1.19102809750994590261\ldots.
 \end{equation}
-The accompanying MPFR verifier uses $384$-bit arithmetic with directed
+The accompanying MPFR verifier \cite{FousseEtAl2007} uses $384$-bit arithmetic with directed
 rounding. It reconstructs all discrete data from the six generators and
 proves the conservative strict inequality
 \begin{equation}\label{eq:certified}
- \boxed{C_{3a}>1.19102809}.
+\boxed{C_{3a}>1.19102809}\qquad\text{(carry-free limit).}
 \end{equation}
 No optimization claim is needed for the proof: Proposition~\ref{prop:masked}
 holds at the single fixed value $\lambda_0$.
 
-\section{Structure of the successful masks}\label{sec:structure}
+\section{Controlled carries}
+We now modify the masked-digit construction by replacing the carry-free base
+$Q=2B+1$ by an arbitrary integer base $q>B$.  The elements under
+consideration still have digits in $M\subseteq\{0,\ldots,B\}$ and a bound on
+their total digit sum.  Their digitwise sums have digits in $M+M$, as before,
+so the partition polynomial $P_+$ continues to give the required sumset
+upper bound.  Signed difference digits lie in $D=M-M\subseteq[-B,B]$, but
+when $q<2B+1$ distinct signed digit words can determine the same integer
+after carrying.  We must count distinct differences without counting such
+words more than once.
+
+Fix a positive integer $k$ and group the digit positions into consecutive
+blocks of $k$ positions.  Within one block, a signed digit vector
+$(d_0,\ldots,d_{k-1})\in D^k$ has integer value
+$\sum_{i=0}^{k-1}d_iq^i$.  Two such values have the same residue modulo
+$q^k$ precisely when they differ by a carry into the next block.  We
+therefore retain, for each residue class, the least possible witness cost of
+a signed block with that residue.  This removes all within-block carry
+collisions while preserving a large collection of differences.  Formally,
+for $r\in\mathbb Z/q^k\mathbb Z$, define
+\begin{equation}\label{eq:controlled-cost}
+ c_k(r)=\min\left\{\sum_{i=0}^{k-1}\kappa(d_i):
+ d_i\in D,\quad \sum_{i=0}^{k-1}d_iq^i\equiv r\pmod{q^k}\right\},
+\end{equation}
+with value $+\infty$ if no such digit vector exists.  Thus a vector
+\emph{represents $r$ modulo $q^k$} when its integer value is congruent to
+$r$ modulo $q^k$.  Put
+\begin{equation}\label{eq:controlled-Z}
+ Z_k(x)=\sum_{r\in\mathbb Z/q^k\mathbb Z}x^{c_k(r)},
+ \qquad x^{+\infty}:=0.
+\end{equation}
+
+\begin{proposition}[Controlled-carry block bound]\label{prop:controlled-block}
+For every $k\ge1$ and $x\in(0,1)$,
+\begin{equation}\label{eq:controlled-block-bound}
+ C_{3a}\ge1+
+ \frac{k^{-1}\log Z_k(x)-\log P_+(x)}{\log q}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+If the right side is at most $1$, use the elementary bound $C_{3a}\ge1$.
+Otherwise fix $k$ for the remainder of this proof, let
+\[
+ \mathcal A_k=\{r\in\mathbb Z/q^k\mathbb Z:c_k(r)<+\infty\}
+\]
+be the attainable residue set, and set
+\[
+ R_k=\log Z_k(x)-k\log P_+(x)>0,
+ \quad p_r=\frac{x^{c_k(r)}}{Z_k(x)}\quad(r\in\mathcal A_k),
+ \quad \mu=\sum_{r\in\mathcal A_k}p_rc_k(r).
+\]
+Negation of all difference digits shows that $c_k(-r)=c_k(r)$ and hence
+$p_{-r}=p_r$.  The entropy is
+\begin{equation}\label{eq:controlled-entropy}
+ H(p)=\log Z_k(x)-\mu\log x.
+\end{equation}
+
+Call a residue $r$ \emph{self-inverse} if $r=-r$ in
+$\mathbb Z/q^k\mathbb Z$, equivalently if $2r=0$.  The zero residue is
+always self-inverse; when $q^k$ is even, the only other self-inverse residue
+is $h=q^k/2$.  Let $\mathcal R_k$ contain one member of each two-element
+orbit $\{r,-r\}\subseteq\mathcal A_k$ under negation.  For every
+$r\in\mathcal R_k$, choose a minimum-cost digit vector $d(r)$ representing
+$r$ and set $d(-r)=-d(r)$.  For zero use the all-zero vector.  If $h$ lies
+in $\mathcal A_k$, choose either minimum-cost vector $d(h)$; its negative
+has the same cost and also represents $h$, because $-h=h$ modulo $q^k$.
+
+Let $\ell$ be the number of blocks in the construction.  Define integer
+type counts explicitly by
+\begin{align*}
+ N_r^{(\ell)}=N_{-r}^{(\ell)}&=\lfloor\ell p_r\rfloor
+       &&(r\in\mathcal R_k),\\
+ N_h^{(\ell)}&=2\left\lfloor\frac{\ell p_h}{2}\right\rfloor
+       &&\text{if $h\in\mathcal A_k$},\\
+ N_0^{(\ell)}&=\ell-2\sum_{r\in\mathcal R_k}
+                    \lfloor\ell p_r\rfloor-N_h^{(\ell)},
+\end{align*}
+where the terms involving $h$ are omitted when $h\notin\mathcal A_k$.
+These counts sum to $\ell$ and are nonnegative.  Indeed, every nonzero count
+was rounded downward, so the defining identity for the probabilities gives
+$N_0^{(\ell)}\ge\ell p_0>0$.  Moreover,
+\[
+ \frac{N_r^{(\ell)}}{\ell}\longrightarrow p_r
+ \qquad(\ell\to\infty, r\in\mathcal A_k).
+\]
+Since $k$ is fixed, the alphabet $\mathcal A_k$ is finite.  Consequently,
+the total rounding error in the cost is bounded by a constant depending on
+$k$ (and on the fixed data $M,q,x$), and its contribution after division by
+$\ell$ tends to zero.  The multinomial estimate
+\eqref{eq:multinomial-estimate} gives
+\begin{equation}\label{eq:controlled-mult}
+ \log\frac{\ell!}{\prod_{r\in\mathcal A_k}N_r^{(\ell)}!}
+ =\ell H(p)+o_k(\ell),
+\end{equation}
+and, for every fixed $\varepsilon>0$ and all sufficiently large $\ell$,
+\[
+ \sum_{r\in\mathcal A_k}N_r^{(\ell)}c_k(r)
+ \le(\mu+\varepsilon)\ell.
+\]
+When $h\in\mathcal A_k$, order its occurrences in each residue word from
+left to right, starting with index zero, and orient the even-indexed
+occurrences as $d(h)$ and the odd-indexed occurrences as $-d(h)$.  Thus
+consecutive occurrences are paired with opposite orientations.  The
+definition of $N_h^{(\ell)}$ makes the two counts equal.  For
+every $r\in\mathcal R_k$, the equal counts and the convention
+$d(-r)=-d(r)$ cancel their signed digit vectors; the two orientations at
+$h$ cancel in the same way.  Consequently, the sum of all $k\ell$ unweighted
+difference digits is zero.
+
+Use the symmetric minimum witnesses $\alpha_d,\beta_d$ fixed in the proof of
+Proposition~\ref{prop:masked}.  The total $\alpha$-digit sum and total
+$\beta$-digit sum are then equal, and each is half the total cost.  With
+\[
+ L_\ell=\left\lfloor\frac{(\mu+\varepsilon)\ell}{2}\right\rfloor,
+\]
+let $U_\ell$ be the set of base-$q$ integers with $k\ell$ digits in $M$ and
+total digit sum at most $L_\ell$.  Every selected block-residue word supplies
+a difference of two members of $U_\ell$.
+
+For clarity, if a chosen signed block has integer value
+\[
+ R_j=\sum_{i=0}^{k-1}d_{jk+i}q^i,
+\]
+then
+\[
+ |R_j|\le B\frac{q^k-1}{q-1}\le q^k-1.
+\]
+Hence $R_j\equiv r_j\pmod{q^k}$ and $0\le r_j<q^k$ imply
+$R_j\in\{r_j,r_j-q^k\}$.  We now verify injectivity of the complete
+encoding.  Put $Q=q^k$.  Suppose two oriented residue words give the same
+integer difference.  Reduction modulo $Q$ determines their first canonical
+residue, so the first residues agree.  The corresponding signed blocks also
+agree as integers: for an ordinary residue the chosen block is fixed, while
+for $h$ the sign is determined by the parity of the number of earlier
+occurrences of $h$.  After subtracting this common first block and dividing
+by $Q$, the same argument applies to the two suffixes, with the same parity
+offset because the removed residues agree.  Induction recovers the entire
+residue word.  Thus distinct block-residue words give distinct integer
+differences.
+
+The prefix dependence of the alternating rule is essential to this decoding
+argument.  A rule assigning $d(h)$ to the first half of all occurrences and
+$-d(h)$ to the second half depends on the total number of occurrences in the
+whole word and need not be injective.  The accompanying Lean development
+includes an explicit collision for that alternative rule.
+Thus
+\[
+ \liminf_{\ell\to\infty}\frac1\ell\log\card{U_\ell-U_\ell}\ge H(p).
+\]
+Every member of $U_\ell+U_\ell$ is produced by some word in $S^{k\ell}$ of
+total at most $2L_\ell$.  Uniqueness is unnecessary because these words are
+used only for an upper bound.  Therefore
+\[
+ \limsup_{\ell\to\infty}\frac1\ell\log\card{U_\ell+U_\ell}
+ \le k\log P_+(x)-(\mu+\varepsilon)\log x.
+\]
+The logarithmic ratio consequently has lower rate
+$R_k+\varepsilon\log x$, which is positive if
+$0<\varepsilon<R_k/(-\log x)$.
+
+Moreover, $\mu>0$: the residue $B$ is attainable and has positive cost and
+positive $p$-weight.  Hence $L_\ell\ge B$ eventually and
+$Bq^{k\ell-1}\in U_\ell$.  Together with
+$\max U_\ell\le B(q^{k\ell}-1)/(q-1)$, this gives
+\[
+ \lim_{\ell\to\infty}\frac1\ell\log(4\max U_\ell+1)=k\log q.
+\]
+For each fixed admissible $\varepsilon$, apply
+\eqref{eq:GHR-dilated} after taking $\ell$ sufficiently large, exactly as in
+Proposition~\ref{prop:masked}.  Taking the supremum of the resulting bounds
+over $\varepsilon$ and then letting $\varepsilon\downarrow0$ proves
+\eqref{eq:controlled-block-bound}.
+\end{proof}
+
+\begin{lemma}[Infinite-block pressure]\label{lem:controlled-pressure}
+For fixed $x\in(0,1)$, the limit
+\[
+ \mathcal P(x)=\lim_{k\to\infty}\frac1k\log Z_k(x)
+ =\sup_{k\ge1}\frac1k\log Z_k(x)
+\]
+exists, and
+\begin{equation}\label{eq:controlled-limit-bound}
+ C_{3a}\ge1+\frac{\mathcal P(x)-\log P_+(x)}{\log q}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Concatenating minimum-cost representatives of residues modulo $q^k$ and
+$q^\ell$ shows that
+\[
+ c_{k+\ell}(r+q^ks)\le c_k(r)+c_\ell(s).
+\]
+The map $(r,s)\mapsto r+q^ks$ is a bijection modulo $q^{k+\ell}$, so
+$Z_{k+\ell}(x)\ge Z_k(x)Z_\ell(x)$.  Thus $a_k=\log Z_k(x)$, with
+$a_0=0$, is
+superadditive.  For completeness, if $k=tm+r$ with $0\le r<m$, repeated
+superadditivity gives $a_k\ge t a_m+a_r$.  Since the finitely many $a_r$
+are bounded below, first letting $k\to\infty$ and then taking the supremum
+over $m$ proves
+\[
+ \lim_{k\to\infty}\frac{a_k}{k}
+ =\sup_{m\ge1}\frac{a_m}{m};
+\]
+this is Fekete's lemma in the present setting.
+
+The order of quantifiers is important.  Proposition~\ref{prop:controlled-block}
+first fixes $k$ and then lets the number $\ell$ of blocks tend to infinity;
+its rounding constants are allowed to depend on $k$.  The proposition
+therefore proves a valid lower bound for each individual integer $k$.  We now
+take the supremum of this already-established family of bounds.  No estimate
+uniform in $k$, and no interchange of the limits $\ell\to\infty$ and
+$k\to\infty$, is required.  Using the displayed identity for
+$\mathcal P(x)$ gives \eqref{eq:controlled-limit-bound}.
+\end{proof}
+
+\subsection{Exact pressure for distinct sums}
+The factor $P_+(x)$ used above counts sum-digit words, even when several
+words produce the same integer after carrying.  The following construction
+combines all such representations before counting them.
+
+Let $\mathcal H_+=\{0,1\}$ be the possible carries.  For a canonical output
+digit $r\in\{0,\ldots,q-1\}$, a transition $i\to j$ is possible when
+\[
+ s+i=r+qj
+ \qquad\text{for some }s\in S=M+M.
+\]
+Its cost is $s$.  For a canonical word
+$\mathbf r=(r_0,\ldots,r_{\ell-1})$ and $i,j\in\mathcal H_+$, let
+$c^+_\ell(i,\mathbf r,j)$ be the least total cost of a path from $i$ to
+$j$ emitting $\mathbf r$, with value $+\infty$ if no such path exists.  Set
+\begin{equation}\label{eq:sum-block-matrix}
+ A^+_\ell(x)_{ij}
+ =\sum_{\mathbf r\in\{0,\ldots,q-1\}^\ell}
+   x^{c^+_\ell(i,\mathbf r,j)}.
+\end{equation}
+Let $W_\ell(x)$ be the sum, over the distinct integer outputs of $\ell$
+sum digits, of $x$ raised to the minimum cost of producing that output.
+A canonical output word together with its terminal carry determines the
+integer output uniquely, so the row sum of $A^+_\ell(x)$ starting with carry
+zero is $W_\ell(x)$.  Starting with carry one translates every represented
+integer by one and leaves all input digits and costs unchanged.  Hence both
+row sums are $W_\ell(x)$, and therefore
+\begin{equation}\label{eq:sum-row-root}
+ A^+_\ell(x)\mathbf1=W_\ell(x)\mathbf1,
+ \qquad \rho(A^+_\ell(x))=W_\ell(x).
+\end{equation}
+
+\begin{proposition}[Two-sided carry pressure]\label{prop:two-pressure}
+Define
+\[
+ \mathcal P_-(x)=\mathcal P(x)
+ =\sup_{k\ge1}\frac1k\log Z_k(x)
+\]
+and
+\[
+ \mathcal P_+(x)=\inf_{\ell\ge1}\frac1\ell\log W_\ell(x).
+\]
+Then the second infimum is a limit, and
+\begin{equation}\label{eq:ultimate-bound}
+ C_{3a}\ge
+ 1+\frac{\mathcal P_-(x)-\mathcal P_+(x)}{\log q}.
+\end{equation}
+More explicitly, every $k,\ell\ge1$ gives
+\begin{equation}\label{eq:finite-two-block-bound}
+ C_{3a}\ge1+
+ \frac{k^{-1}\log Z_k(x)-\ell^{-1}\log W_\ell(x)}{\log q}.
+\end{equation}
+If a finite accessible difference-state set $F$ and a positive vector $v$
+satisfy $T_{x,F}v\ge cv$, where $T_{x,F}$ is the principal submatrix of the
+difference carry operator $T_x$ defined in
+Section~\ref{sec:carry-state-operator}, and if
+$W_\ell(x)^{1/\ell}\le p$, then
+\begin{equation}\label{eq:finite-two-pressure-certificate}
+ C_{3a}\ge1+\frac{\log(c/p)}{\log q}.
+\end{equation}
+Finally, each finite sum block has the rigorous error estimate
+\begin{equation}\label{eq:sum-pressure-error}
+ 0\le \frac1\ell\log W_\ell(x)-\mathcal P_+(x)
+ \le\frac{\log2}{\ell}.
+\end{equation}
+Thus $\mathcal P_+(x)$ is the exact asymptotic minimum-cost pressure of
+distinct sum outputs.
+\end{proposition}
+
+\begin{proof}
+Split a canonical output word of length $r+s$ at the block boundary.  For
+fixed boundary carries, the weight of a concatenated output is the maximum,
+over the two possible internal carries, of the two products of minimum-cost
+block weights.  The corresponding entry of the ordinary matrix product
+$A^+_r(x)A^+_s(x)$ is the sum of those at most two products.  Consequently,
+after summing over outputs and terminal carries,
+\begin{equation}\label{eq:sum-almost-multiplicative}
+ W_{r+s}(x)\le W_r(x)W_s(x)\le2W_{r+s}(x).
+\end{equation}
+The left inequality makes $\log W_\ell(x)$ subadditive.  Fekete's lemma and
+\eqref{eq:sum-row-root} give
+\[
+ \lim_{\ell\to\infty}\frac1\ell\log W_\ell(x)
+ =\inf_{\ell\ge1}\frac1\ell\log W_\ell(x)
+ =\mathcal P_+(x).
+\]
+
+Fix $k$ and $\ell$, and take the construction length $N$ to be a common
+multiple of them.  The difference argument in
+Proposition~\ref{prop:controlled-block} supplies the same entropy lower
+bound per $k$-digit block.  If both input digit sums are at most $L$, every
+element of the sumset has minimum sum-digit cost at most $2L$.  Since
+$0<x<1$,
+\[
+ \card{U+U}x^{2L}\le W_N(x)
+ \le W_\ell(x)^{N/\ell}.
+\]
+The digit-budget term cancels the identical term in the difference entropy
+calculation.  Dividing by $N$ and then taking the construction-size limit
+proves \eqref{eq:finite-two-block-bound}.  Taking the supremum over $k$ and
+the infimum over $\ell$ proves \eqref{eq:ultimate-bound}.
+
+Proposition~\ref{prop:controlled-finite-graph} gives
+$\mathcal P_-(x)\ge\log c$, while
+$\mathcal P_+(x)\le\ell^{-1}\log W_\ell(x)\le\log p$; substituting these
+two inequalities in \eqref{eq:ultimate-bound} proves
+\eqref{eq:finite-two-pressure-certificate}.  Finally, iterating the right
+inequality in \eqref{eq:sum-almost-multiplicative} gives
+\[
+ W_{n\ell}(x)\ge 2^{-(n-1)}W_\ell(x)^n.
+\]
+Taking logarithms, dividing by $n\ell$, and letting $n\to\infty$ proves the
+upper error bound in \eqref{eq:sum-pressure-error}; the lower bound follows
+from the definition of the infimum.
+\end{proof}
+
+\subsection{The carry-state transfer operator}\label{sec:carry-state-operator}
+Put $w(d)=\kappa(d)$ for $d\in D$ and $w(d)=+\infty$ otherwise, and define
+for $0\le r\le q$
+\[
+ A_r^+=w(r),\qquad A_r^-=w(q-r).
+\]
+Thus $A_r^+$ is the cost of signed digit $r$, while $A_r^-$ is the cost of
+signed digit $r-q$; the latter equality uses the evenness of $w$.
+Here $A_q^+=+\infty$ and $A_q^-=w(0)=0$.  For a canonical prefix residue
+$R\in\{0,\ldots,q^j-1\}$ for which at least one signed word exists, define
+$C_j^{(0)}(R)$ and
+$C_j^{(1)}(R)$ to be the minimum costs of signed $j$-digit words whose
+integer values are, respectively, $R$ and $R-q^j$; an impossible value has
+cost $+\infty$.  These are the only two possible integer values with residue
+$R$, because
+\[
+ \left|\sum_{i<j}d_iq^i\right|
+ \le B\frac{q^j-1}{q-1}\le q^j-1.
+\]
+Let $m_j(R)=\min(C_j^{(0)}(R),C_j^{(1)}(R))$ and normalize by setting
+\[
+ u_0=C_j^{(0)}(R)-m_j(R),\qquad
+ u_1=C_j^{(1)}(R)-m_j(R).
+\]
+At least one of $u_0,u_1$ is zero.  The state is
+\[
+ \delta=u_1-u_0\in\mathbb Z\cup\{-\infty,+\infty\},
+\]
+with the conventions $\delta=+\infty$ when $u_1=+\infty$ and
+$\delta=-\infty$ when $u_0=+\infty$.  Thus $\delta$ records both which of
+the two representatives is cheaper and their exact cost difference.  For
+the empty prefix, $C_0^{(0)}(0)=0$ and $C_0^{(1)}(0)=+\infty$, so the initial
+state is $+\infty$.
+Conversely, $\delta$ uniquely determines the normalized pair: it is
+$(0,\delta)$ when $0\le\delta<+\infty$, $(-\delta,0)$ when
+$-\infty<\delta<0$, $(0,+\infty)$ when $\delta=+\infty$, and
+$(+\infty,0)$ when $\delta=-\infty$.  Hence the update below depends only
+on the current state and the next canonical digit.
+
+On appending the next canonical digit $r\in\{0,\ldots,q-1\}$, set
+\begin{equation}\label{eq:carry-transition}
+ v_0=\min(u_0+A_r^+,u_1+A_{r+1}^+),\qquad
+ v_1=\min(u_0+A_r^-,u_1+A_{r+1}^-).
+\end{equation}
+If at least one value is finite, let
+\[
+ a(\delta,r)=\min(v_0,v_1),\qquad
+ \Phi(\delta,r)=v_1-v_0
+\]
+with the same extended convention.  The definitions of $A_q^+$ and $A_q^-$
+make \eqref{eq:carry-transition} valid also for $r=q-1$, including the
+borrow across the new boundary.  Induction on the target digits shows that
+the sum of the increments $a$ along a target word is exactly the minimum
+cost $c_k(R)$ of its terminal residue $R\in\mathbb Z/q^k\mathbb Z$.
+
+Let $T_x$ be the reachable-state kernel
+\begin{equation}\label{eq:carry-operator}
+ T_x(\delta,\delta')=
+ \sum_{\substack{0\le r<q\\\Phi(\delta,r)=\delta'}}x^{a(\delta,r)}.
+\end{equation}
+For vectors $u$ and $v$ indexed by the reachable states, write
+$u\cdot v=\sum_s u_s v_s$.  Let $e_{+\infty}$ denote
+the coordinate vector supported at the initial state $+\infty$, and let
+$\mathbf1$ denote the vector whose coordinates are all one.  Starting from
+$\delta=+\infty$, we then have the exact scalar path identity
+\begin{equation}\label{eq:carry-path-identity}
+ Z_k(x)=e_{+\infty}\cdot\bigl(T_x^k\mathbf1\bigr).
+\end{equation}
+
+\begin{proposition}[Finite accessible-subgraph certificate]
+\label{prop:controlled-finite-graph}
+Let $\mathcal S$ be the set of states reachable from $+\infty$.  Suppose
+$F\subseteq\mathcal S$ is finite and there is an integer $h\ge0$ such that
+\[
+ (T_x^h)(+\infty,s)>0\qquad(s\in F).
+\]
+Let $T_{x,F}=(T_x(s,t))_{s,t\in F}$ be the principal submatrix indexed by
+$F$, and let $\rho(T_{x,F})$ denote its spectral radius, that is, the largest
+modulus of one of its complex eigenvalues.  Then
+\[
+ \mathcal P(x)\ge\log\rho(T_{x,F}).
+\]
+Here and below, $\log0=-\infty$ when the retained matrix is nilpotent.
+If $c>0$, $v>0$, and $T_{x,F}v\ge cv$ componentwise, then
+\begin{equation}\label{eq:controlled-collatz}
+ C_{3a}\ge1+\frac{\log c-\log P_+(x)}{\log q}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Define $b_s=(T_x^h)(+\infty,s)>0$ for $s\in F$.  In the path expansion of
+\eqref{eq:carry-path-identity}, retain only paths that reach a state of $F$
+after $h$ steps and remain in $F$ for the next $n$ steps.  Since every path
+weight is nonnegative,
+\[
+ Z_{h+n}(x)\ge
+ b\cdot\bigl(T_{x,F}^n\mathbf1\bigr).
+\]
+No irreducibility assumption is needed.  Put $A=T_{x,F}$ and
+$b_*=\min_{s\in F}b_s>0$.  For the induced matrix $1$-norm,
+\[
+ b\cdot\bigl(A^n\mathbf1\bigr)
+ \ge b_*\,\mathbf1\cdot\bigl(A^n\mathbf1\bigr)
+ \ge b_*\lVert A^n\rVert_1.
+\]
+The Jordan normal form of the finite matrix $A$ gives
+$\lim_{n\to\infty}\lVert A^n\rVert_1^{1/n}=\rho(A)$: each Jordan block with
+eigenvalue $\lambda$ contributes a polynomial in $n$ times $|\lambda|^n$.
+Hence the preceding path restriction and the existence of the pressure limit
+imply
+$\mathcal P(x)\ge\log\rho(A)$ (with the case $\rho(A)=0$ trivial).
+
+Finally, if $v>0$ and $Av\ge cv$, then $A^nv\ge c^nv$ for every $n$.
+Writing $v_* =\min_s v_s$ and $v^*=\max_s v_s$ gives, for the induced
+infinity norm,
+\[
+ \lVert A^n\rVert_\infty
+ \ge c^n\frac{v_*}{v^*}.
+\]
+The same Jordan-form norm limit yields $\rho(A)\ge c$.  This is
+the positive-vector form of the Collatz--Wielandt bound, proved here for the
+possibly reducible matrix $A$.  Equation \eqref{eq:controlled-collatz} now
+follows from Lemma~\ref{lem:controlled-pressure}.
+\end{proof}
+
+\subsection{The controlled-carry certificate}\label{sec:controlled-certificate}
+Take
+\begin{equation}\label{eq:controlled-mask}
+ B=26972,\qquad q=27022,
+\qquad
+ M=\angles{1971,2016,2100,2628,2688,2800}\cap[0,B],
+\end{equation}
+and
+\begin{equation}\label{eq:controlled-x}
+ x=\mathtt{0x1.ffde827adc0fep-1}
+ =0.9997444891905898\ldots.
+\end{equation}
+Exact reconstruction gives $\card M=5869$ and $\card{M+M}=31274$.
+For $j=1,\ldots,8$, let
+\[
+ F_j=\{s\in\mathcal S:(T_x^j)(+\infty,s)>0\}.
+\]
+The verifier obtains
+\[
+ \card{F_1}=7451,\quad \card{F_2}=49009,\quad
+ \card{F_3}=109851,\quad \card{F_4}=161577,
+\]
+\[
+ \card{F_5}=210577,\quad \card{F_6}=258233,\quad
+ \card{F_7}=305267,\quad \card{F_8}=351951.
+\]
+It checks a positive dyadic vector componentwise for $T_{x,F_8}$ and proves
+\[
+ \rho(T_{x,F_8})>582.117820.
+\]
+The file \texttt{certificate/controlled/pf8\_vector.hex} contains the vector
+$v$, one coordinate for each state of $F_8$.  Each line gives the integer
+state label followed by the corresponding positive binary64 value in
+hexadecimal notation.  The verifier reconstructs $F_8$ independently,
+checks that the labels occur in the required order, and then verifies the
+componentwise inequality
+\[
+ T_{x,F_8}v>582.117820v.
+\]
+All powers in the difference matrix are rounded downward.  A row contains at
+most $q$ multiplications and $q$ additions; the verifier uses the deliberately
+larger relative-error allowance $4q\,2^{-52}$ in every Collatz inequality.
+Thus the matrix calculation is one-sided rather than a heuristic eigenvalue
+estimate.
+
+On the sum side, directed dynamic programming constructs $W_{8192}(x)$ and
+proves
+\[
+ W_{8192}(x)^{1/8192}<79.428331.
+\]
+Every multiplication and addition in this calculation is rounded upward.
+The values are rescaled by exact powers of two to avoid overflow and
+underflow.  The final comparison is made against a downward-rounded power of
+the rational number $79428331/10^6$.  By
+\eqref{eq:sum-pressure-error}, replacing the exact infinite sum pressure by
+this finite block changes the resulting exponent by at most
+\[
+ \frac{\log2}{8192\log27022}<8.292\times10^{-6}.
+\]
+This estimate is diagnostic only: the displayed finite-block upper bound is
+already rigorous and is what is used in the theorem.
+
+It remains to compare the rational pressure bounds with the reported decimal.
+The accompanying Python script uses only exact rational arithmetic.  It
+range-reduces each logarithm by powers of two and encloses
+$\log y=2\operatorname{atanh}((y-1)/(y+1))$ between a positive rational
+partial sum and an explicit geometric tail.  It certifies
+\[
+ 1+\frac{\log(582.117820/79.428331)}{\log27022}>1.19519192.
+\]
+Equations \eqref{eq:finite-two-pressure-certificate} and
+\eqref{eq:controlled-mask} therefore prove
+\begin{equation}\label{eq:controlled-certified}
+ \boxed{C_{3a}>1.19519192}.
+\end{equation}
+\section{A direct finite-depth certificate}\label{sec:finite-certificate}
+For a bound that does not invoke either limiting theorem, return to the
+carry-free mask \eqref{eq:record-mask}, with $B=17032$ and
+$Q=34065$, and set
+\[
+ x_f=0.9996789017186568,\qquad N=10^{13}.
+\]
+Let
+\[
+ W=\sum_{d\in D}x_f^{\kappa(d)},\qquad
+ n_d=\left\lfloor\frac{N x_f^{\kappa(d)}}{W}\right\rfloor\quad(d>0),
+ \qquad n_{-d}=n_d,
+\]
+and let $n_0=N-2\sum_{d>0}n_d$.  Define
+\[
+ L=\frac12\sum_{d\in D}n_d\kappa(d)
+ =51500691976683641
+\]
+and the explicit finite set
+\[
+ U=\left\{\sum_{i=0}^{N-1}a_iQ^i:
+ a_i\in M,\ \sum_i a_i\le L\right\}.
+\]
+The finite set to which \eqref{eq:GHR} is applied is $V=2U$, as in the
+dilation argument leading to \eqref{eq:GHR-dilated}.  The elementary bound
+for $U$ itself is only $\card{U-U}\le2\max U+1$; since strict inequality has
+not been established, applying \eqref{eq:GHR} directly to $U$ would leave a
+gap.  Passing to $V$ supplies the required strictness at the negligible cost
+of the additional $\log2$ described in Section~1.
+For each $d$, use the symmetric minimum-cost witnesses
+$(\alpha_d,\beta_d)$ fixed in the proof of
+Proposition~\ref{prop:masked}.  There are exactly
+\[
+ D_N:=\frac{N!}{n_0!\prod_{d>0}(n_d!)^2}
+\]
+signed difference words $(d_0,\ldots,d_{N-1})$ having the prescribed counts.
+Because $n_d=n_{-d}$, each such word satisfies $\sum_i d_i=0$.  Replacing
+each $d_i$ by its fixed witness $\alpha_{d_i}-\beta_{d_i}$ gives two mask
+words.  Their digit sums are equal because
+$\sum_i(\alpha_{d_i}-\beta_{d_i})=\sum_i d_i=0$, and their sum is
+$\sum_i(\alpha_{d_i}+\beta_{d_i})$.  Consequently, each digit sum is
+\[
+ \frac12\sum_i\bigl(\alpha_{d_i}+\beta_{d_i}\bigr)
+ =\frac12\sum_{d\in D}n_d\kappa(d)=L.
+\]
+They therefore encode two members of $U$, whose difference is
+$\sum_i d_iQ^i$.  Finally, $d_i\in[-B,B]$ and $Q=2B+1$, so the carry-free
+injectivity established in Proposition~\ref{prop:masked} implies that two
+different signed words produce two different integers $\sum_i d_iQ^i$.
+Thus these $D_N$ words give $D_N$ distinct elements of $U-U$, and hence
+\[
+ \card{U-U}\ge D_N,
+\]
+while the same elementary weighted count used earlier gives
+\[
+ \card{U+U}\le S_N:=P_+(x_f)^N x_f^{-2L}.
+\]
+No limit is involved in either inequality.  Since
+$\max U\le(Q^N-1)/2$, the dilated denominator satisfies
+\[
+ 4\max U+1\le2Q^N-1<2Q^N.
+\]
+Directed $512$-bit MPFR evaluation \cite{FousseEtAl2007} reconstructs all
+type counts (including $n_0=14962802398$) and certifies the strict inequalities
+\begin{align*}
+ \log D_N&>98126619915169.7944,\\
+ \log S_N&<78190878820128.0915,\\
+ \log(2Q^N)&<104360257432078.3785.
+\end{align*}
+Substitution in \eqref{eq:GHR-dilated} gives a lower value
+$1.1910280942725\ldots$ and proves the wholly finite statement
+\begin{equation}\label{eq:finite-certified}
+ \boxed{C_{3a}>1.19102809}\qquad\text{(explicit finite depth $N=10^{13}$).}
+\end{equation}
+This value is weaker than both limiting bounds, as expected, but it can be
+recomputed directly without accepting the asymptotic arguments in
+Proposition~\ref{prop:masked} or Lemma~\ref{lem:controlled-pressure}.
+
+\section{Semigroup structure and computational motivation}\label{sec:structure}
+This section explains the numerical-semigroup structure of the carry-free
+example in Section~3.  It does not assert that a mask optimal for
+the carry-free base remains optimal after carries are allowed: the
+controlled-carry certificate uses the different mask
+\[
+ \angles{1971,2016,2100,2628,2688,2800}\cap[0,26972]
+ =\bigl(\angles{\{3,4\}\times\{657,672,700\}}\bigr)\cap[0,26972].
+\]
+Nevertheless, both successful masks arise from a $2\times3$ product grid,
+which suggests that the relation structure discussed below remains useful
+when the base is lowered even though the optimal parameters change.
+
 A numerical semigroup is a cofinite additive submonoid of $\N$.  Numerical
 semigroups are useful here because their missing elements suppress the
 low-degree part of $P_+$, while additive relations among their generators
@@ -433,11 +1129,11 @@ by the Hilbert series or by the three cardinalities in
 function $\kappa$.
 
 For a generating vector $G=(g_1,\ldots,g_e)$, a useful untruncated analogue
-of $\kappa$ is the residual norm
+of $\kappa$ is the residual cost function
 \[
  \nu_G(d)=\min\left\{
  \sum_i(z_i^++z_i^-)g_i:
- z_i^\pm\in\N,\space
+ z_i^\pm\in\N,\quad
  \sum_i(z_i^+-z_i^-)g_i=d
  \right\}.
 \]
@@ -445,10 +1141,10 @@ Thus $\nu_G(d)$ is the least total cost of two semigroup elements whose
 difference is $d$.  If a minimizing pair lies in $[0,B]$, then
 $\kappa(d)=\nu_G(d)$.  Exact relations, with residual zero, help produce
 sum collisions; near relations with small nonzero residuals help produce
-many difference digits at low cost.  The record combines both kinds.
+many difference digits at low cost.  The example combines both kinds.
 
-\subsection{The progression to the record}
-The record emerged from a sequence of increasingly structured
+\subsection{A progression of carry-free constructions}
+The carry-free example emerged from a sequence of increasingly structured
 numerical-semigroup masks:
 \[
 \begin{array}{c@{\quad}c@{\quad}c}
@@ -476,7 +1172,7 @@ $S\angles{k,k+1}+(S+1)\angles{k,k+1}$, the identity
 \]
 produces a unit residual with shared support.
 
-The former five-generator record is an iterated gluing:
+The former five-generator example is an iterated gluing:
 \[
  \angles{312,315,336,416,420}
  =21\angles{15,16,20}+104\angles{3,4},
@@ -484,7 +1180,7 @@ The former five-generator record is an iterated gluing:
  \angles{15,16,20}=5\angles{3,4}+16\N.
 \]
 Gluing is standard in the theory of complete-intersection numerical
-semigroups \cite{AssiGarciaSanchez2013,RosalesGarciaSanchez2009}.
+semigroups \cite{AssiGarciaSanchez2013,AssiGarciaOjeda2015}.
 Studying this decomposition led to searches parameterized by relations
 rather than by unrelated generator coordinates.
 
@@ -511,7 +1207,7 @@ its Hilbert series is
  =\frac{(1-t^{ars})(1-t^{ab})}
  {(1-t^{ar})(1-t^{as})(1-t^b)}.
 \]
-For the record parameters
+For these parameters
 \[
  (r,s,a,b)=(22,23,23,508),
 \]
@@ -526,15 +1222,15 @@ differing by only $46$, while the generators
 are also clustered.  The two balances have distinct meanings:
 $b\approx rs$ aligns the relation degrees, whereas $b\approx ar$ clusters
 two generators.  Satisfying both naturally forces $a\approx s$; in the
-record, $a=s$ exactly.  Formula \eqref{eq:column-gluing} also gives
+present example, $a=s$ exactly.  Formula \eqref{eq:column-gluing} also gives
 the column Frobenius number
 \[
  23(22\cdot23-22-23)+22\cdot508=21779.
 \]
 
-\subsection{\texorpdfstring{The $2$-by-$3$ generator grid}
-                           {The 2-by-3 generator grid}}
-The record semigroup is generated by the grid
+\subsection{\texorpdfstring{The $2\times3$ generator grid}
+                           {The two-by-three generator grid}}
+The semigroup is generated by the grid
 \begin{equation}\label{eq:grid}
  \{3,4\}\times\{506,508,529\}
  =
@@ -544,7 +1240,7 @@ For a column $c$, the two row generators have the exact relation
 \[
  4(3c)=3(4c).
 \]
-For the three record columns, these relations occur at degrees
+For the three columns, these relations occur at degrees
 \[
  6072,\qquad6096,\qquad6348,
 \]
@@ -586,11 +1282,11 @@ $\kappa(1)=14351$.  This illustrates why minimizing $\kappa(1)$ alone is
 not an adequate design criterion: Proposition~\ref{prop:masked} uses the
 entire weighted distribution of $\kappa(d)$.
 
-\subsection{What appears to matter}
+\subsection{Structural properties suggested by the search}
 Searches around \eqref{eq:grid} found a narrow interior ridge: consecutive
 $r,s$, equality $a=s$, near equality $b\approx rs\approx ar$, and the row
 pair $\{3,4\}$ were all favored.  Relaxing the relation balance and adding
-a third binary product factor did not improve the record.  These
+a third binary product factor did not improve the best value found.  These
 computations are evidence about the explored families, not an optimality
 proof.
 
@@ -609,17 +1305,22 @@ logically required by Proposition~\ref{prop:masked}.  A natural broader
 program is therefore to prescribe a small weighted relation lattice first
 and solve the resulting Diophantine constraints for the generators.  This
 includes low-rank grids with small circuit defects, carefully selected
-additive gluings, and low-dimensional Kunz-cone faces.  Such a
+additive gluings, and constrained families described by numerical-semigroup
+coordinates.  Such a
 relation-template approach is more closely tied to the objective than an
 unstructured search over generator tuples.
 
+
 \section{Verification and reproducibility}
 The source code, certificate files, verification scripts, and saved run
-logs are available at
+logs are available in the repository at
 \[
  \packageurl.
 \]
-The package contains the following independently written checks.
+After this update package is integrated, the repository contains the
+following checks.  Items 1--3 are the existing carry-free checks; items
+4--6 are supplied or extended by this update, and item 7 is the accompanying
+formal verification.
 \begin{enumerate}
  \item \texttt{verification/verify\_mpfr.cpp} reconstructs $M$, $M+M$, and
  $\kappa(d)$ using exact integer arithmetic and certifies
@@ -631,25 +1332,31 @@ The package contains the following independently written checks.
  data in PARI/GP and evaluates the bound at high precision. This is a
  secondary numerical cross-check; the MPFR program supplies the rigorous
  floating-point certificate.
+ \item \texttt{verification/controlled/certify\_candidate.cpp}, together
+ with \texttt{pressure.hpp}, reconstructs the controlled-carry mask, all
+ eight accessible state sets, the $351951$ component Collatz certificate,
+ and the directed $8192$-digit sum-pressure bound.
+ \item \texttt{verification/controlled/verify\_exponent.py} checks the final
+ decimal exponent with exact rational logarithm enclosures.  Its conclusion
+ does not depend on a floating-point implementation of $\log$.
+ \item \texttt{verification/verify\_finite\_mpfr.cpp} reconstructs the
+ $N=10^{13}$ finite type counts and certifies
+ \eqref{eq:finite-certified} with directed MPFR rounding.  Its running time
+ is governed by the fixed mask size, not by enumeration of the elements of
+ $U$.
+ \item \texttt{formalization/lean/} contains the Lean~4/Mathlib
+ formalization produced with Aristotle.  Running its \texttt{verify.sh}
+ builds the project, prints the principal theorem and axiom reports, and
+ rejects any occurrence of \texttt{sorry}, \texttt{admit}, or an explicit
+ project axiom.
 \end{enumerate}
-
-\section*{Acknowledgements and AI-use disclosure}
-During this work, the author used several large language models (LLMs).
-OpenAI's GPT-5.6 Sol model was used extensively in software development,
-analysis of search results, drafting and revising this paper, and preparation
-of the verification package.  Google's Gemini 3.1 Pro Preview was used in
-software development and analysis of search results; Google's Gemini 3.5
-Flash was used to review the paper; and Anthropic's Sonnet 5 was used in
-analysis of search results.  The author set the research goals, directed the
-computational work, selected which suggestions to pursue, ran the search and
-verification software, reviewed the mathematical arguments and outputs, and
-takes responsibility for all claims and references.
 
 \begin{thebibliography}{99}
 \bibitem{Csiszar1998}
 I. Csisz\'ar,
 \emph{The method of types},
 IEEE Transactions on Information Theory 44 (1998), no.~6, 2505--2523,
+\url{https://doi.org/10.1109/18.720546},
 \url{https://iest2.ie.cuhk.edu.hk/~whyeung/post/manuscript/06_SAEP/method\%20of\%20types.pdf}.
 
 \bibitem{OptimizationConstants2026}
@@ -662,6 +1369,7 @@ GitHub repository, 2026,
 K. Gyarmati, F. Hennecart, and I. Z. Ruzsa,
 \emph{Sums and differences of finite sets},
 Functiones et Approximatio Commentarii Mathematici 37 (2007), 175--186,
+\url{https://doi.org/10.7169/facm/1229618749},
 \url{https://gyarmatikati.web.elte.hu/publ/sumdiffv.pdf}.
 
 \bibitem{GeorgievEtAl2025}
@@ -700,6 +1408,12 @@ Numaro,
 GitHub pull request \#131 to the Optimization Constants repository, 2026,
 \url{https://github.com/teorth/optimizationproblems/pull/131}.
 
+\bibitem{Kleinwaks2026}
+L. Kleinwaks,
+\emph{Masked-semigroup digit bound $C_{3a}>1.19102809$},
+GitHub pull request \#134 to the Optimization Constants repository, 2026,
+\url{https://github.com/teorth/optimizationproblems/pull/134}.
+
 \bibitem{AssiGarciaSanchez2013}
 A. Assi and P. A. Garc\'ia-S\'anchez,
 \emph{Constructing the set of complete intersection numerical semigroups
@@ -707,10 +1421,27 @@ with a given Frobenius number},
 arXiv:1204.4258, 2013,
 \url{https://arxiv.org/abs/1204.4258}.
 
-\bibitem{RosalesGarciaSanchez2009}
-J. C. Rosales and P. A. Garc\'ia-S\'anchez,
-\emph{Numerical Semigroups},
-Developments in Mathematics, vol.~20, Springer, 2009.
+\bibitem{AssiGarciaOjeda2015}
+A. Assi, P. A. Garc\'ia-S\'anchez, and I. Ojeda,
+\emph{Frobenius vectors, Hilbert series and gluings of affine semigroups},
+Journal of Commutative Algebra 7 (2015), no.~3, 317--335,
+\url{https://doi.org/10.1216/JCA-2015-7-3-317},
+\url{https://arxiv.org/abs/1311.1988}.
+
+\bibitem{FousseEtAl2007}
+L. Fousse, G. Hanrot, V. Lef\`evre, P. P\'elissier, and P. Zimmermann,
+\emph{MPFR: A multiple-precision binary floating-point library with correct
+rounding},
+ACM Transactions on Mathematical Software 33 (2007), no.~2, Article~13,
+\url{https://doi.org/10.1145/1236463.1236468},
+\url{https://inria.hal.science/inria-00070266v1/document}.
+
+\bibitem{Aristotle2025}
+T. Achim et al.,
+\emph{Aristotle: IMO-level Automated Theorem Proving},
+arXiv:2510.01346, 2025,
+\url{https://arxiv.org/abs/2510.01346}.
+
 \end{thebibliography}
 
 \end{document}
